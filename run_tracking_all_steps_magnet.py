@@ -15,7 +15,7 @@ run_post_process = True
 ##########################################################################################
 filenames_beads, dirnames_beads = info.get_filenames_beads()
 cell_channel, bead_channel = info.get_color_channels()
-X_DIM, Y_DIM, Z_DIM = info.get_FOV_dims(1)
+X_DIM, Y_DIM, Z_DIM = info.get_FOV_dims(3)
 cell_threshold = info.get_cell_thresh()
 filenames_cell, dirnames_cell  = info.get_filenames_cell()
 savefnames_cell, savefnames_beads  = info.get_savenames()

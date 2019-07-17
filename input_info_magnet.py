@@ -69,6 +69,10 @@ def get_FOV_dims(type):
 		X_DIM = 141.70
 		Y_DIM = 141.70
 		Z_DIM = 120.0 
+	elif type == 3:
+		X_DIM = 149.95
+		Y_DIM = 149.95
+		Z_DIM = 
 	return X_DIM, Y_DIM, Z_DIM 
 	
 def get_cell_thresh():

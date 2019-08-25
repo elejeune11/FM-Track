@@ -39,12 +39,12 @@ We use [SemVer](http://semver.org/) for versioning.
 
 ## Authors
 
-* **Emma Lejeune**
-* **Alex Khang**
+* Emma Lejeune
+* Alex Khang
 
 ## Contributors
 
-* **Jake Sansom**
+* Jake Sansom
 
 ## License
 

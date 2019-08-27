@@ -28,6 +28,36 @@ You can also download the zip file for the repository, unzip the folder, navigat
 sudo python setup.py install
 ```
 
+## Usage
+
+FM-Track uses the input_info class to store filepaths for easy IO. To initialize an input_info object, pass your root file path into the initialization function like so:
+
+```Python
+info = input_info('/Users/<username>/Desktop/data')
+```
+
+In this example, we will be interacting with data inside of the data folder, located on the Desktop. All of the input and output files will be located in this data directory.
+
+Input_info stores the names of your subdirectories and other tunable parameters. By default, input_info objects are initialized to work with with the sample data provided in the software package (see the Testing section of this document for an example). To change the names of these properties, simply modify the properties of the object like such:
+
+```Python
+info.num_feat = 6
+```
+
+To view all of the properties you can change, simply look inside the [input_info.py](input_info.py) file.
+
+## Testing
+
+To test FM-Track, it is easiest to run the sofware on the data folder included within the fmtrack directory. You can either download this data from GitHub as a .zip file or copy the folder from your directory. Copy this data directory to an easily accessible testing location. Try running the following code after modifying the \<filepath\> to match the path of your data folder.
+
+```Python
+from fmtrack.input_info import input_info
+from fmtrack.run_tracking_all_steps import run_tracking_all_steps
+
+info = input_info('<filepath>')
+run_tracking_all_steps(True,True,True,info)
+```
+
 ## Built With
 
 * [py-earth](https://github.com/scikit-learn-contrib/py-earth) - Used to compute multivariate adaptive regression splines

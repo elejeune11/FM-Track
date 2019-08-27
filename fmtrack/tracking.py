@@ -8,13 +8,13 @@ np.warnings.filterwarnings('ignore') # this suppresses a FutureWarning in the Py
 ##########################################################################################
 # import bead centers 
 ##########################################################################################
-def import_data(file_prefix_1, file_prefix_2):
-	cell_mesh_fname1 = 'Gel_cell_coords/' + file_prefix_1 + '_cell_mesh.txt'
-	cell_mesh_fname2 = 'Gel_cell_coords/' + file_prefix_2 + '_cell_mesh.txt'
+def import_data(file_prefix_1, file_prefix_2, root_directory):
+	cell_mesh_fname1 = root_directory + '/Gel_cell_coords/' + file_prefix_1 + '_cell_mesh.txt'
+	cell_mesh_fname2 = root_directory + '/Gel_cell_coords/' + file_prefix_2 + '_cell_mesh.txt'
 	cell_mesh = np.loadtxt(cell_mesh_fname1)
 	cell_mesh_2 = np.loadtxt(cell_mesh_fname2)
-	beads_fname1 = 'Gel_bead_center_coords/' + file_prefix_1 + '_beads.txt'
-	beads_fname2 = 'Gel_bead_center_coords/' + file_prefix_2 + '_beads.txt'
+	beads_fname1 = root_directory + '/Gel_bead_center_coords/' + file_prefix_1 + '_beads.txt'
+	beads_fname2 = root_directory + '/Gel_bead_center_coords/' + file_prefix_2 + '_beads.txt'
 	data1 = np.loadtxt(beads_fname1)
 	data2 = np.loadtxt(beads_fname2)
 	x_pos = []; y_pos = []; z_pos = [] 
@@ -31,9 +31,9 @@ def import_data(file_prefix_1, file_prefix_2):
 	
 	return x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_mesh, cell_mesh_2
 
-def import_data_no_cell(file_prefix_1,file_prefix_2):
-	beads_fname1 = 'Gel_bead_center_coords/' + file_prefix_1 + '_beads.txt'
-	beads_fname2 = 'Gel_bead_center_coords/' + file_prefix_2 + '_beads.txt'
+def import_data_no_cell(file_prefix_1,file_prefix_2, root_directory):
+	beads_fname1 = root_directory + '/Gel_bead_center_coords/' + file_prefix_1 + '_beads.txt'
+	beads_fname2 = root_directory + '/Gel_bead_center_coords/' + file_prefix_2 + '_beads.txt'
 	data1 = np.loadtxt(beads_fname1)
 	data2 = np.loadtxt(beads_fname2)
 	x_pos = []; y_pos = []; z_pos = [] 
@@ -390,11 +390,11 @@ def track_correct_track(folder, num_feat, num_nearest, x_pos, y_pos, z_pos, x_po
 	return closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_mesh_2_new 
 
 # --> main tracking function 
-def track_main_call(type,file_prefix_1, file_prefix_2, num_feat, num_nearest, buffer_cell):
-	folder = 'Track_' + file_prefix_1 + '_to_' + file_prefix_2 
+def track_main_call(type,file_prefix_1, file_prefix_2, num_feat, num_nearest, buffer_cell, root_directory):
+	folder = root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2 
 	# --> import files 
 	x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_mesh, cell_mesh_2 = \
-		import_data(file_prefix_1, file_prefix_2)
+		import_data(file_prefix_1, file_prefix_2, root_directory)
 	
 	# --> create directory and copy files into it
 	if not os.path.exists(folder):
@@ -414,9 +414,9 @@ def track_main_call(type,file_prefix_1, file_prefix_2, num_feat, num_nearest, bu
 	return closest_no_conflict
 
 # --> main tracking function, no cell, primary utility is for de-bugging and performance checks w/ synthetic data 
-def track_no_cell(type,file_prefix_1,file_prefix_2,num_feat,num_nearest):
-	folder = 'Track_' + file_prefix_1 + '_to_' + file_prefix_2 
-	x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new = import_data_no_cell(file_prefix_1,file_prefix_2)
+def track_no_cell(type,file_prefix_1,file_prefix_2,num_feat,num_nearest, root_directory):
+	folder = root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2 
+	x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new = import_data_no_cell(file_prefix_1,file_prefix_2,root_directory)
 	
 	# --> create directory and copy files into it
 	if not os.path.exists(folder):

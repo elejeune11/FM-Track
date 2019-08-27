@@ -1,6 +1,6 @@
-import post_process as post_process 
-import pre_process as pre_process
-import tracking as track 
+from . import post_process
+from . import pre_process
+from . import tracking as track
 import numpy as np
 import os 
 
@@ -34,7 +34,7 @@ def run_tracking_all_steps(run_pre_process, run_tracking, run_post_process, info
 	num_tracking_pairs = len(tracking_pairs)
 	if run_tracking:
 		for kk in range(0,num_tracking_pairs):
-			closest_no_conflict = track.track_main_call(track_type,tracking_pairs[kk][0],tracking_pairs[kk][1], num_feat,num_nearest, buffer_cell)
+			closest_no_conflict = track.track_main_call(track_type,tracking_pairs[kk][0],tracking_pairs[kk][1], num_feat,num_nearest, buffer_cell, info.root_directory)
 	##########################################################################################
 	# post process 
 	##########################################################################################
@@ -42,10 +42,10 @@ def run_tracking_all_steps(run_pre_process, run_tracking, run_post_process, info
 	if run_post_process:
 		for kk in range(0,num_tracking_pairs):
 			post_process.call_plot_main(plot_type,tracking_pairs[kk][0], tracking_pairs[kk][1],num_feat,\
-				X_DIM,Y_DIM,Z_DIM,figtype_list, use_corrected_cell)
+				X_DIM,Y_DIM,Z_DIM,figtype_list, use_corrected_cell, info.root_directory)
 			
 		if run_GP:
 			for kk in range(0,num_tracking_pairs):
-				post_process.create_GP_model(tracking_pairs[kk][0], tracking_pairs[kk][1])
+				post_process.create_GP_model(tracking_pairs[kk][0], tracking_pairs[kk][1], info.root_directory)
 				post_process.plot_gp_model(tracking_pairs[kk][0], tracking_pairs[kk][1],\
-					X_DIM,Y_DIM,Z_DIM,figtype_list)
+					X_DIM,Y_DIM,Z_DIM,figtype_list, info.root_directory)

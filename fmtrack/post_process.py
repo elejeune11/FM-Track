@@ -1,3 +1,5 @@
+import fmtrack
+import os
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -10,17 +12,22 @@ from sklearn.gaussian_process.kernels import (RBF, Matern, RationalQuadratic,
 from sklearn.neighbors import KernelDensity
 from sklearn import preprocessing
 ##########################################################################################
+# get filepath for matplotlib style
+##########################################################################################
+stylepath = os.path.dirname(os.path.abspath(fmtrack.__file__)) + '/el_papers.mplstyle'
+
+##########################################################################################
 # import data 
 ##########################################################################################
-def import_cell_info(file_prefix_1,file_prefix_2):
-	cell_mesh_1 = np.loadtxt('Gel_cell_coords/' + file_prefix_1 + '_cell_mesh.txt')
-	cell_normal_1 = np.loadtxt('Gel_cell_coords/' + file_prefix_1 + '_cell_normals.txt')
-	cell_center_1 = np.loadtxt('Gel_cell_coords/' + file_prefix_1 + '_cell_center.txt')
-	cell_vol_1 = np.loadtxt('Gel_cell_coords/' + file_prefix_1 + '_cell_volume.txt')
-	cell_mesh_2 = np.loadtxt('Gel_cell_coords/' + file_prefix_2 + '_cell_mesh.txt')
-	cell_normal_2 = np.loadtxt('Gel_cell_coords/' + file_prefix_2 + '_cell_normals.txt')
-	cell_center_2 = np.loadtxt('Gel_cell_coords/' + file_prefix_2 + '_cell_center.txt')
-	cell_vol_2 = np.loadtxt('Gel_cell_coords/' + file_prefix_2 + '_cell_volume.txt')
+def import_cell_info(file_prefix_1,file_prefix_2,root_directory):
+	cell_mesh_1 = np.loadtxt(root_directory+'/Gel_cell_coords/' + file_prefix_1 + '_cell_mesh.txt')
+	cell_normal_1 = np.loadtxt(root_directory+'/Gel_cell_coords/' + file_prefix_1 + '_cell_normals.txt')
+	cell_center_1 = np.loadtxt(root_directory+'/Gel_cell_coords/' + file_prefix_1 + '_cell_center.txt')
+	cell_vol_1 = np.loadtxt(root_directory+'/Gel_cell_coords/' + file_prefix_1 + '_cell_volume.txt')
+	cell_mesh_2 = np.loadtxt(root_directory+'/Gel_cell_coords/' + file_prefix_2 + '_cell_mesh.txt')
+	cell_normal_2 = np.loadtxt(root_directory+'/Gel_cell_coords/' + file_prefix_2 + '_cell_normals.txt')
+	cell_center_2 = np.loadtxt(root_directory+'/Gel_cell_coords/' + file_prefix_2 + '_cell_center.txt')
+	cell_vol_2 = np.loadtxt(root_directory+'/Gel_cell_coords/' + file_prefix_2 + '_cell_volume.txt')
 	return cell_mesh_1, cell_normal_1, cell_center_1, cell_vol_1, cell_mesh_2, cell_normal_2, cell_center_2, cell_vol_2
 	
 def import_bead_disps(folder):
@@ -142,7 +149,7 @@ def plot_cell_3D(ax,cell_num,cell_mesh, cell_center, cell_vol, X_DIM, Y_DIM, Z_D
 		col = (0,0,0)
 	verts = cell_mesh; cent = cell_center; vol = cell_vol
 	
-	ax.set_aspect('equal')
+	ax.set_aspect('auto')
 	ax.plot(verts[:,0],verts[:,1],verts[:,2],'.',color=col)
 	
 	ax.set_xlim((-1,X_DIM))
@@ -307,7 +314,7 @@ def plot_cell_vector_slice_row(ax_list,color_type,color_info,X,Y,Z,U,V,W,cell_ce
 # --> plot cells
 def plot_only_cells(cell_mesh_1,cell_center_1,cell_vol_1,cell_mesh_2,cell_center_2,cell_vol_2,X_DIM,Y_DIM,Z_DIM,folder,figtype_list):
 	fig = plt.figure()
-	plt.style.use('el_papers.mplstyle')
+	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
 	plt.rc('font', family='serif')
 	fig.set_figheight(5)
@@ -325,7 +332,7 @@ def plot_only_cells(cell_mesh_1,cell_center_1,cell_vol_1,cell_mesh_2,cell_center
 # --> plot scores
 def plot_only_scores(neigh_score,dir_score,folder,figtype_list):
 	fig = plt.figure()
-	plt.style.use('el_papers.mplstyle')
+	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
 	plt.rc('font', family='serif')
 	fig.set_figheight(5)
@@ -349,7 +356,7 @@ def plot_only_scores(neigh_score,dir_score,folder,figtype_list):
 # --> plot slice
 def plot_only_slice(dir_score,X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_center_2,cell_mesh_2,X_DIM,Y_DIM,Z_DIM,folder,figtype_list):
 	fig = plt.figure()
-	plt.style.use('el_papers.mplstyle')
+	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
 	plt.rc('font', family='serif')
 	fig.set_figheight(5)
@@ -377,7 +384,7 @@ def plot_only_slice(dir_score,X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_center_
 # --> plot distance
 def plot_only_distance(cell_mesh,dist_from_edge,dist_from_cell,mag_list,folder,figtype_list):
 	fig = plt.figure()
-	plt.style.use('el_papers.mplstyle')
+	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
 	plt.rc('font', family='serif')
 	fig.set_figheight(5)
@@ -394,7 +401,7 @@ def plot_only_distance(cell_mesh,dist_from_edge,dist_from_cell,mag_list,folder,f
 def plot_all(folder, file_prefix_1,file_prefix_2,dir_score,neigh_score,dist_from_edge,dist_from_cell,mag_list,\
 		X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_vol_1,cell_center_2,cell_mesh_2,cell_vol_2,X_DIM,Y_DIM,Z_DIM,figtype_list):
 	fig = plt.figure()
-	plt.style.use('el_papers.mplstyle')
+	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
 	plt.rc('font', family='serif')
 	fig.set_figheight(10)
@@ -438,12 +445,12 @@ def plot_all(folder, file_prefix_1,file_prefix_2,dir_score,neigh_score,dist_from
 	return 
 
 # call individual plots, plus call multiple subplots
-def call_plot_main(plot_type,file_prefix_1,file_prefix_2,num_feat,X_DIM,Y_DIM,Z_DIM,figtype_list,use_corrected_cell):
-	folder = 'Track_' + file_prefix_1 + '_to_' + file_prefix_2 
+def call_plot_main(plot_type,file_prefix_1,file_prefix_2,num_feat,X_DIM,Y_DIM,Z_DIM,figtype_list,use_corrected_cell,root_directory):
+	folder = root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2 
 	if use_corrected_cell:
 		cell_mesh_2 = np.loadtxt(folder + '/cell_mesh_2_corrected.txt')
 	X, Y, Z, U, V, W = import_bead_disps(folder)
-	cell_mesh_1, cell_normal_1, cell_center_1, cell_vol_1, cell_mesh_2, cell_normal_2, cell_center_2, cell_vol_2 = import_cell_info(file_prefix_1,file_prefix_2)
+	cell_mesh_1, cell_normal_1, cell_center_1, cell_vol_1, cell_mesh_2, cell_normal_2, cell_center_2, cell_vol_2 = import_cell_info(file_prefix_1,file_prefix_2,root_directory)
 	
 	neigh_score = color_point_neighbor_similarity(X, Y, Z, U, V, W, num_feat)
 	dir_score, dist_from_cell, mag_list = color_point_direction(X, Y, Z, U, V, W, cell_mesh_1, cell_normal_1)
@@ -482,8 +489,8 @@ def create_gp_model(X,Y,Z,QoI):
 	return gp , scaler
 
 # --> create GP models 
-def create_GP_model(file_prefix_1,file_prefix_2):
-	folder = 'Track_' + file_prefix_1 + '_to_' + file_prefix_2
+def create_GP_model(file_prefix_1,file_prefix_2,root_directory):
+	folder = root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2
 	X, Y, Z, U, V, W = import_bead_disps(folder)
 	gp_U, scaler = create_gp_model(X,Y,Z,U)
 	gp_V, scaler = create_gp_model(X,Y,Z,V)
@@ -617,11 +624,11 @@ def plot_gp_model_one_row(ax_list,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,gp_model
 	
 
 # --> plot GPR model 
-def plot_gp_model(file_prefix_1,file_prefix_2,X_DIM,Y_DIM,Z_DIM,figtype_list,use_corrected_cell):
+def plot_gp_model(file_prefix_1,file_prefix_2,X_DIM,Y_DIM,Z_DIM,figtype_list,use_corrected_cell, root_directory):
 	cell_mesh_1, cell_normal_1, cell_center_1, cell_vol_1, cell_mesh_2, cell_normal_2, cell_center_2, cell_vol_2 = import_cell_info(file_prefix_1,file_prefix_2)
 	
 	center = 0.5*cell_center_1 + 0.5*cell_center_2
-	folder = 'Track_' + file_prefix_1 + '_to_' + file_prefix_2
+	folder = root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2
 	
 	if use_corrected_cell:
 		cell_mesh_2 = np.loadtxt(folder + '/cell_mesh_2_corrected.txt')
@@ -632,7 +639,7 @@ def plot_gp_model(file_prefix_1,file_prefix_2,X_DIM,Y_DIM,Z_DIM,figtype_list,use
 	scaler = pickle.load(open(folder + '/scaler.sav','rb'))
 	
 	fig = plt.figure()
-	plt.style.use('el_papers.mplstyle')
+	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
 	plt.rc('font', family='serif')
 	fig.set_figheight(20)

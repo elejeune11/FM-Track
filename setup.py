@@ -5,12 +5,12 @@ def readme():
         return f.read()
 
 setup(name='fm-track',
-      version='0.1.0',
+      version='1.0.0',
       description='Feature-based fiducial marker tracking software for applications in cell mechanics',
       long_description=readme(),
       long_description_content_type='text/markdown',
       classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.6',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
@@ -21,10 +21,11 @@ setup(name='fm-track',
       author='Emma Marie Lejeune',
       author_email='emma.lejeune.11@gmail.com',
       license='MIT',
-      packages=['fm-track'],
+      packages=['fmtrack'],
       python_requires='>=3.0, <=3.6',
       package_data={
-        'fm-track': ['data/*.tif'],
+        'fmtrack': ['data/*.tif'],
+        'fmtrack': ['el_papers.mplstyle']
       },
       install_requires=[
           'markdown',

@@ -3,53 +3,57 @@
 ##########################################################################################
 import os 
 import numpy as np
-import json
 
 ##########################################################################################
 # class to get path names and constants that can be modified
 ##########################################################################################
 
-class input_info():
+class input_info:
 
-	def __init__():
+	def __init__(self,root_directory=None):
+
+		if root_directory is not None:
+			self.root_directory = root_directory
+		
 		self.assign_defaults()
 
-	def assign_defaults():
+	def assign_defaults(self):
 
-		# For get_filenames_cell()
-		self.filenames_cell = [ \
-			'data/7_16_Magnet/Magnet/Magnetic Bead/Magnet%s.tif',\
-			'data/7_16_Magnet/No Magnet/Magnetic Bead/No Magnet%s.tif',\
-			'data/7_16_Magnet/No Magnet 2/Magnetic Bead/No Magnet 2%s.tif']
-		self.dirnames_cell = [ \
-			'data/7_16_Magnet/Magnet/Magnetic Bead/',\
-			'data/7_16_Magnet/No Magnet/Magnetic Bead/',\
-			'data/7_16_Magnet/No Magnet 2/Magnetic Bead/']
+		if self.root_directory is not None:
+			# For get_filenames_cell()
+			self.filenames_cell = [ \
+				self.root_directory + '/Magnet/Magnetic Bead/Magnet%s.tif',\
+				self.root_directory + '/No Magnet/Magnetic Bead/No Magnet%s.tif',\
+				self.root_directory + '/No Magnet 2/Magnetic Bead/No Magnet 2%s.tif']
+			self.dirnames_cell = [ \
+				self.root_directory + '/Magnet/Magnetic Bead/',\
+				self.root_directory + '/No Magnet/Magnetic Bead/',\
+				self.root_directory + '/No Magnet 2/Magnetic Bead/']
 
-		# For get_filenames_beads()
-		self.filenames_beads = [ \
-			'data/7_16_Magnet/Magnet/Tracking Beads/Magnet%s.tif',\
-			'data/7_16_Magnet/No Magnet/Tracking Beads/No Magnet%s.tif',\
-			'data/7_16_Magnet/No Magnet 2/Tracking Beads/No Magnet 2%s.tif']
-		self.dirnames_beads = [ \
-			'data/7_16_Magnet/Magnet/Tracking Beads/',\
-			'data/7_16_Magnet/No Magnet/Tracking Beads/',\
-			'data/7_16_Magnet/No Magnet 2/Tracking Beads/']
+			# For get_filenames_beads()
+			self.filenames_beads = [ \
+				self.root_directory + '/Magnet/Tracking Beads/Magnet%s.tif',\
+				self.root_directory + '/No Magnet/Tracking Beads/No Magnet%s.tif',\
+				self.root_directory + '/No Magnet 2/Tracking Beads/No Magnet 2%s.tif']
+			self.dirnames_beads = [ \
+				self.root_directory + '/Magnet/Tracking Beads/',\
+				self.root_directory + '/No Magnet/Tracking Beads/',\
+				self.root_directory + '/No Magnet 2/Tracking Beads/']
 
-		# For get_savenames()
-		self.out_folder_cell = 'Gel_cell_coords'
-		self.out_folder_beads = 'Gel_bead_center_coords'
-		self.savefnames = [ \
-			'data/7_16_Magnet',\
-			'data/7_16_NoMagnet',\
-			'data/7_16_NoMagnet2']
+			# For get_savenames()
+			self.out_folder_cell = self.root_directory + '/Gel_cell_coords'
+			self.out_folder_beads = self.root_directory + '/Gel_bead_center_coords'
+			self.savefnames = [ \
+				'MagnetSave',\
+				'NoMagnetSave',\
+				'NoMagnetSave2']
 
-		# For get_tracking_pairs()
-		self.out_folder = 'Post_proc_summary'
-		self.tracking_pairs = [ \
-			['data/7_16_Magnet','../7_16_NoMagnet'],\
-			['data/7_16_NoMagnet','../7_16_NoMagnet2'],\
-			['data/7_16_Magnet','../7_16_NoMagnet2']]
+			# For get_tracking_pairs()
+			self.out_folder = self.root_directory + '/data/Post_proc_summary'
+			self.tracking_pairs = [ \
+				['MagnetSave', 'NoMagnetSave'],\
+				['NoMagnetSave', 'NoMagnetSave2'],\
+				['MagnetSave', 'NoMagnetSave2']]
 
 		# For get_color_channels()
 		self.cell_channel = 0 #CellBrite Red
@@ -77,13 +81,13 @@ class input_info():
 		self.use_corrected_cell = True
 
 
-	def get_filenames_cell():
+	def get_filenames_cell(self):
 		return self.filenames_cell, self.dirnames_cell 
 		
-	def get_filenames_beads():
+	def get_filenames_beads(self):
 		return self.filenames_beads, self.dirnames_beads
 		
-	def get_savenames():
+	def get_savenames(self):
 		if not os.path.exists(self.out_folder_cell):
 			os.makedirs(self.out_folder_cell)
 		if not os.path.exists(self.out_folder_beads):
@@ -95,29 +99,29 @@ class input_info():
 			savefnames_beads.append(self.out_folder_beads + '/' + self.savefnames[kk] + '_beads.txt') 
 		return savefnames_cell, savefnames_beads 
 
-	def get_tracking_pairs():
+	def get_tracking_pairs(self):
 		if not os.path.exists(self.out_folder):
 			os.makedirs(self.out_folder)
 		return self.tracking_pairs
 
-	def get_color_channels(): #for indexing 3D array with cell image and bead image
+	def get_color_channels(self): #for indexing 3D array with cell image and bead image
 		return self.cell_channel, self.bead_channel
 
-	def get_FOV_dims(type):
+	def get_FOV_dims(self, type):
 		fov_dims = self.fov_dims[type-1]
 		X_DIM = fov_dims[0]
 		Y_DIM = fov_dims[1]
 		Z_DIM = fov_dims[2]
 		return X_DIM, Y_DIM, Z_DIM 
 		
-	def get_cell_thresh():
+	def get_cell_thresh(self):
 		return self.cell_thresh
 		
-	def get_tracking_params():
+	def get_tracking_params(self):
 		return self.num_feat, self.num_nearest, self.buffer_cell, self.track_type 
 
-	def get_translation_correction_params():
+	def get_translation_correction_params(self):
 		return self.buffer_cell 
 
-	def get_postproc_info():
+	def get_postproc_info(self):
 		return self.figtype_list, self.plot_type, self.run_GP, self.use_corrected_cell

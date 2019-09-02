@@ -16,13 +16,13 @@ conda activate <environmentname>
 conda install pip
 ```
 
-To install FM-Track, simply use the following command:
+To install FM-Track, download the zip file for the repository, unzip the folder, and navigate into the folder inside of a bash shell using the following command:
 
 ```
-pip install fm-track
+cd <path-to-folder>
 ```
 
-You can also download the zip file for the repository, unzip the folder, navigate into the folder inside of a bash shell, and run the following command:
+To complete the installation, run the following command:
 
 ```
 sudo python setup.py install

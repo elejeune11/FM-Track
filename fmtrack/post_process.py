@@ -398,7 +398,7 @@ def plot_only_distance(cell_mesh,dist_from_edge,dist_from_cell,mag_list,folder,f
 	return 
 
 # --> plot all
-def plot_all(folder, file_prefix_1,file_prefix_2,dir_score,neigh_score,dist_from_edge,dist_from_cell,mag_list,\
+def plot_all(folder, root_directory, file_prefix_1,file_prefix_2,dir_score,neigh_score,dist_from_edge,dist_from_cell,mag_list,\
 		X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_vol_1,cell_center_2,cell_mesh_2,cell_vol_2,X_DIM,Y_DIM,Z_DIM,figtype_list):
 	fig = plt.figure()
 	plt.style.use(stylepath)
@@ -440,7 +440,7 @@ def plot_all(folder, file_prefix_1,file_prefix_2,dir_score,neigh_score,dist_from
 		fname = folder + '/Summary_plot' + end
 		plt.savefig(fname)
 	for end in figtype_list:
-		fname = 'Post_proc_summary' + '/' + 'Summary_' + file_prefix_1 + '_to_' + file_prefix_2 + end
+		fname = root_directory + '/Post_proc_summary' + '/' + 'Summary_' + file_prefix_1 + '_to_' + file_prefix_2 + end
 		plt.savefig(fname) 
 	return 
 
@@ -459,7 +459,7 @@ def call_plot_main(plot_type,file_prefix_1,file_prefix_2,num_feat,X_DIM,Y_DIM,Z_
 	#type 6 will create all plots
 	# --> arrange data 
 	if plot_type == 1 or plot_type == 6: # big plot with everything, saves it in two directories
-		plot_all(folder, file_prefix_1,file_prefix_2,dir_score,neigh_score,dist_from_edge,dist_from_cell,mag_list,\
+		plot_all(folder, root_directory, file_prefix_1,file_prefix_2,dir_score,neigh_score,dist_from_edge,dist_from_cell,mag_list,\
 			X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_vol_1,cell_center_2,cell_mesh_2,cell_vol_2,X_DIM,Y_DIM,Z_DIM,figtype_list)
 	if plot_type == 2 or plot_type == 6: # plots cells in both configurations 
 		plot_only_cells(cell_mesh_1,cell_center_1,cell_vol_1,cell_mesh_2,cell_center_2,cell_vol_2,X_DIM,Y_DIM,Z_DIM,folder,figtype_list)

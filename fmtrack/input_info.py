@@ -104,6 +104,11 @@ class input_info:
 			os.makedirs(self.out_folder)
 		return self.tracking_pairs
 
+	def get_out_folder(self):
+		if not os.path.exists(self.out_folder):
+			os.makedirs(self.out_folder)
+		return self.out_folder
+
 	def get_color_channels(self): #for indexing 3D array with cell image and bead image
 		return self.cell_channel, self.bead_channel
 

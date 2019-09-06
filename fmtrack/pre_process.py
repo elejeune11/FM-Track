@@ -7,6 +7,7 @@ import numpy as np
 from scipy import ndimage
 from skimage.filters import threshold_otsu
 from skimage.measure import label, regionprops, marching_cubes_lewiner   
+import pyvista
 ##########################################################################################
 # function to read tiff files 
 ##########################################################################################
@@ -87,7 +88,16 @@ def get_cell_surface(path,input_file,save_file,color_idx, X_DIM, Y_DIM, Z_DIM, c
 	np.savetxt(save_file + 'mesh.txt',verts)
 	np.savetxt(save_file + 'normals.txt',normals)
 	np.savetxt(save_file + 'faces.txt',faces)	
+
+	output_paraview_file(verts,faces,save_file + 'paraview.vtk')
 	return 
+
+def output_paraview_file(verts,faces,filename):
+	threes = np.ones((faces.shape[0],1))*3
+	faces = np.hstack((threes,faces))
+
+	surf = pyvista.PolyData(verts, faces)
+	surf.save(filename)
 
 
 ##########################################################################################

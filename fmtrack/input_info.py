@@ -19,42 +19,6 @@ class input_info:
 
 	def assign_defaults(self):
 
-		if self.root_directory is not None:
-			# For get_filenames_cell()
-			self.filenames_cell = [ \
-				self.root_directory + '/Magnet/Magnetic Bead/Magnet%s.tif',\
-				self.root_directory + '/No Magnet/Magnetic Bead/No Magnet%s.tif',\
-				self.root_directory + '/No Magnet 2/Magnetic Bead/No Magnet 2%s.tif']
-			self.dirnames_cell = [ \
-				self.root_directory + '/Magnet/Magnetic Bead/',\
-				self.root_directory + '/No Magnet/Magnetic Bead/',\
-				self.root_directory + '/No Magnet 2/Magnetic Bead/']
-
-			# For get_filenames_beads()
-			self.filenames_beads = [ \
-				self.root_directory + '/Magnet/Tracking Beads/Magnet%s.tif',\
-				self.root_directory + '/No Magnet/Tracking Beads/No Magnet%s.tif',\
-				self.root_directory + '/No Magnet 2/Tracking Beads/No Magnet 2%s.tif']
-			self.dirnames_beads = [ \
-				self.root_directory + '/Magnet/Tracking Beads/',\
-				self.root_directory + '/No Magnet/Tracking Beads/',\
-				self.root_directory + '/No Magnet 2/Tracking Beads/']
-
-			# For get_savenames()
-			self.out_folder_cell = self.root_directory + '/Gel_cell_coords'
-			self.out_folder_beads = self.root_directory + '/Gel_bead_center_coords'
-			self.savefnames = [ \
-				'MagnetSave',\
-				'NoMagnetSave',\
-				'NoMagnetSave2']
-
-			# For get_tracking_pairs()
-			self.out_folder = self.root_directory + '/data/Post_proc_summary'
-			self.tracking_pairs = [ \
-				['MagnetSave', 'NoMagnetSave'],\
-				['NoMagnetSave', 'NoMagnetSave2'],\
-				['MagnetSave', 'NoMagnetSave2']]
-
 		# For get_color_channels()
 		self.cell_channel = 0 #CellBrite Red
 		self.bead_channel = 1 #Green fluorescent beads 
@@ -80,34 +44,83 @@ class input_info:
 		self.run_GP = False
 		self.use_corrected_cell = True
 
+	def concat_root_to_all(self,array):
+		if self.root_directory is not None:
+			filenames = np.array([])
+			for item in array:
+				filenames = np.append(filenames, os.path.join(self.root_directory,item))
+			return filenames
+		else:
+			raise Exception('root_directory property must be specified')
+
+	def set_filenames_cell(self,filenames_cell):
+		self.filenames_cell = filenames_cell
+
+	def set_dirnames_cell(self,dirnames_cell):
+		self.dirnames_cell = dirnames_cell
 
 	def get_filenames_cell(self):
-		return self.filenames_cell, self.dirnames_cell 
+		if self.filenames_cell is not None and self.dirnames_cell is not None:
+			filenames_cell = self.concat_root_to_all(self.filenames_cell)
+			dirnames_cell = self.concat_root_to_all(self.dirnames_cell)
+			return filenames_cell, dirnames_cell 
+		else:
+			raise Exception('filenames_cell and dirnames_cell must both be specified')
 		
+	def set_filenames_beads(self,filenames_beads):
+		self.filenames_beads = filenames_beads
+
+	def set_dirnames_beads(self,dirnames_beads):
+		self.dirnames_beads = dirnames_beads
+
 	def get_filenames_beads(self):
-		return self.filenames_beads, self.dirnames_beads
+		if self.filenames_beads is not None and self.dirnames_beads is not None:
+			filenames_beads = self.concat_root_to_all(self.filenames_beads)
+			dirnames_beads = self.concat_root_to_all(self.dirnames_beads)
+			return filenames_beads, dirnames_beads 
+		else:
+			raise Exception('filenames_beads and dirnames_beads must both be specified')
+
+	def set_out_folder_cell(self,out_folder_cell):
+		self.out_folder_cell = out_folder_cell
+
+	def set_out_folder_beads(self,out_folder_beads):
+		self.out_folder_beads = out_folder_beads
+
+	def set_savefnames(self,savefnames):
+		self.savefnames = savefnames
 		
 	def get_savenames(self):
-		if not os.path.exists(self.out_folder_cell):
-			os.makedirs(self.out_folder_cell)
-		if not os.path.exists(self.out_folder_beads):
-			os.makedirs(self.out_folder_beads)
+		out_folder_cell = self.concat_root_to_all(self.out_folder_cell)
+		out_folder_beads = self.concat_root_to_all(self.out_folder_beads)
+		if not os.path.exists(out_folder_cell):
+			os.makedirs(out_folder_cell)
+		if not os.path.exists(out_folder_beads):
+			os.makedirs(out_folder_beads)
 		savefnames_cell = [] 
 		savefnames_beads = [] 
 		for kk in range(0,len(self.savefnames)):
-			savefnames_cell.append(self.out_folder_cell + '/' + self.savefnames[kk] + '_cell_')
-			savefnames_beads.append(self.out_folder_beads + '/' + self.savefnames[kk] + '_beads.txt') 
+			savefnames_cell.append(out_folder_cell + '/' + self.savefnames[kk] + '_cell_')
+			savefnames_beads.append(out_folder_beads + '/' + self.savefnames[kk] + '_beads.txt') 
 		return savefnames_cell, savefnames_beads 
 
+	def set_out_folder(self,out_folder):
+		self.out_folder = out_folder
+
+	def set_tracking_pairs(self,tracking_pairs):
+		self.tracking_pairs = tracking_pairs
+
 	def get_tracking_pairs(self):
-		if not os.path.exists(self.out_folder):
-			os.makedirs(self.out_folder)
+		out_folder = self.concat_root_to_all(self.out_folder)
+		if not os.path.exists(out_folder):
+			os.makedirs(out_folder)
 		return self.tracking_pairs
 
 	def get_out_folder(self):
-		if not os.path.exists(self.out_folder):
-			os.makedirs(self.out_folder)
-		return self.out_folder
+		out_folder = self.concat_root_to_all(self.out_folder)
+		if not os.path.exists(out_folder):
+			os.makedirs(out_folder)
+		return out_folder
 
 	def get_color_channels(self): #for indexing 3D array with cell image and bead image
 		return self.cell_channel, self.bead_channel

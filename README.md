@@ -11,8 +11,8 @@ For a lengthier description, please refer to the [technical overview](technicalo
 To install FM-Track, it is recommended to use Pip within a conda environment. Currently, FM-Track is only compatible with Python <= 3.6. To create a compatible environment, use the following commands:
 
 ```
-conda create -n <environmentname> python=3.6 anaconda
-conda activate <environmentname>
+conda create -n fmtrack python=3.6 anaconda
+conda activate fmtrack
 conda install pip
 ```
 
@@ -28,35 +28,27 @@ To complete the installation, run the following command:
 sudo python setup.py install
 ```
 
-## Usage
+## Testing and Usage
 
-FM-Track uses the input_info class to store filepaths for easy IO. To initialize an input_info object, pass your root file path into the initialization function like so:
+The easiest way to learn how to use FM-Track is by looking at the [test.py](examples/test.py) script. This script runs FM-Track on a set of sample data so you can see how it works on test data before trying it on your own. To properly use this file, copy the [data](examples/data) folder to your Desktop (or somewhere easily accessible), then change the root_directory variable at the top of test.py to store the path of this data folder. Next, run test.py using an IDE or in terminal by running:
 
-```Python
-info = input_info('/Users/<username>/Desktop/data')
+```
+conda activate fmtrack
+python <path-to-test.py>
 ```
 
-In this example, we will be interacting with data inside of the data folder, located on the Desktop. All of the input and output files will be located in this data directory.
+FM-Track uses the input_info class to store all your filepaths. The test.py file explains this in greater detail. Additionally, input_info stores the values of other tunable parameters. The test.py file explains this as well. The parameters that can be modified are as follows:
 
-Input_info stores the names of your subdirectories and other tunable parameters. By default, input_info objects are initialized to work with with the sample data provided in the software package (see the Testing section of this document for an example). To change the names of these properties, simply modify the properties of the object like such:
+* Color channels of beads and cell
+* Dimensions of FOV
+* Cellular threshold for analyzing boundaries of cellular material
+* Number of feature vectors used
+* Number of nearest beads analyzed
+* Tracking type (translation correction or not)
+* Cell buffers (for both the regular and translation correcting steps)
+* Data plotting options
 
-```Python
-info.num_feat = 6
-```
-
-To view all of the properties you can change, simply look inside the [input_info.py](input_info.py) file.
-
-## Testing
-
-To test FM-Track, it is easiest to run the sofware on the data folder included within the fmtrack directory. You can either download this data from GitHub as a .zip file or copy the folder from your directory. Copy this data directory to an easily accessible testing location. Try running the following code after modifying the \<filepath\> to match the path of your data folder.
-
-```Python
-from fmtrack.input_info import input_info
-from fmtrack.run_tracking_all_steps import run_tracking_all_steps
-
-info = input_info('<filepath>')
-run_tracking_all_steps(True,True,True,info)
-```
+For a greater description of all of these, please refer to the [technical overview](technicaloverview.pdf).
 
 ## Built With
 

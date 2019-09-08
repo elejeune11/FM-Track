@@ -42,18 +42,10 @@ filenames_cell = [ \
     'Magnet/Magnetic Bead/Magnet%s.tif',\
     'No Magnet/Magnetic Bead/No Magnet%s.tif',\
     'No Magnet 2/Magnetic Bead/No Magnet 2%s.tif']
-dirnames_cell = [ \
-    'Magnet/Magnetic Bead/',\
-    'No Magnet/Magnetic Bead/',\
-    'No Magnet 2/Magnetic Bead/']
 filenames_beads = [ \
     'Magnet/Tracking Beads/Magnet%s.tif',\
     'No Magnet/Tracking Beads/No Magnet%s.tif',\
     'No Magnet 2/Tracking Beads/No Magnet 2%s.tif']
-dirnames_beads = [ \
-    'Magnet/Tracking Beads/',\
-    'No Magnet/Tracking Beads/',\
-    'No Magnet 2/Tracking Beads/']
 
 # these strings specify the filenames you would like to use for saving your data.
 # FM-Track will append other words to these names to create full filenames. An example
@@ -84,10 +76,7 @@ info = input_info('/Users/<username>/Desktop/data')
 # these lines use specific functions to pass in the variables we specified in
 # section 2
 info.set_filenames_cell(filenames_cell)
-info.set_dirnames_cell(dirnames_cell)
 info.set_filenames_beads(filenames_beads)
-info.set_dirnames_beads(dirnames_beads)
-info.set_tracking_pairs(tracking_pairs)
 info.set_savefnames(savefnames)
 info.set_tracking_pairs(tracking_pairs)
 

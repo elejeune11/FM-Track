@@ -63,13 +63,12 @@ class input_info:
 	def set_filenames_cell(self,filenames_cell):
 		self.filenames_cell = filenames_cell
 
-	def set_dirnames_cell(self,dirnames_cell):
-		self.dirnames_cell = dirnames_cell
-
 	def get_filenames_cell(self):
-		if self.filenames_cell is not None and self.dirnames_cell is not None:
+		if self.filenames_cell is not None:
 			filenames_cell = self.concat_root_to_all(self.filenames_cell)
-			dirnames_cell = self.concat_root_to_all(self.dirnames_cell)
+			dirnames_cell = []
+			for item in filenames_cell:
+				dirnames_cell.append(os.path.dirname(item))
 			return filenames_cell, dirnames_cell 
 		else:
 			raise Exception('filenames_cell and dirnames_cell must both be specified')
@@ -77,13 +76,12 @@ class input_info:
 	def set_filenames_beads(self,filenames_beads):
 		self.filenames_beads = filenames_beads
 
-	def set_dirnames_beads(self,dirnames_beads):
-		self.dirnames_beads = dirnames_beads
-
 	def get_filenames_beads(self):
-		if self.filenames_beads is not None and self.dirnames_beads is not None:
+		if self.filenames_beads is not None:
 			filenames_beads = self.concat_root_to_all(self.filenames_beads)
-			dirnames_beads = self.concat_root_to_all(self.dirnames_beads)
+			dirnames_beads = []
+			for item in filenames_beads:
+				dirnames_beads.append(os.path.dirname(item))
 			return filenames_beads, dirnames_beads 
 		else:
 			raise Exception('filenames_beads and dirnames_beads must both be specified')

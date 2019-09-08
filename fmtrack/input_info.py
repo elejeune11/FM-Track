@@ -12,9 +12,7 @@ class input_info:
 
 	def __init__(self,root_directory=None):
 
-		if root_directory is not None:
-			self.root_directory = root_directory
-		
+		self.root_directory = root_directory
 		self.assign_defaults()
 
 	def assign_defaults(self):
@@ -32,11 +30,11 @@ class input_info:
 		# For get_tracking_params()
 		self.num_feat = 5
 		self.num_nearest = 15
-		self.buffer_cell = 0
+		self.buffer_cell_tracking = 0
 		self.track_type = 2 # type 1 will NOT perform translation correction, type 2 will
 
 		# For get_translation_correction_params()
-		self.buffer_cell = 30
+		self.buffer_cell_translation = 30
 
 		# For get_postproc_info()
 		self.figtype_list = ['.png'] 
@@ -145,10 +143,10 @@ class input_info:
 		return self.cell_thresh
 		
 	def get_tracking_params(self):
-		return self.num_feat, self.num_nearest, self.buffer_cell, self.track_type 
+		return self.num_feat, self.num_nearest, self.buffer_cell_tracking, self.track_type 
 
 	def get_translation_correction_params(self):
-		return self.buffer_cell 
+		return self.buffer_cell_translation
 
 	def get_postproc_info(self):
 		return self.figtype_list, self.plot_type, self.run_GP, self.use_corrected_cell

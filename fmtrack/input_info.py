@@ -98,6 +98,10 @@ class input_info:
 		self.savefnames = savefnames
 		
 	def get_savenames(self):
+		if self.out_folder_cell is None:
+			self.out_folder_cell = 'Gel_cell_coords'
+		if self.out_folder_beads is None:
+			self.out_folder_beads = 'Gel_bead_center_coords'
 		out_folder_cell = self.concat_root_to_string(self.out_folder_cell)
 		out_folder_beads = self.concat_root_to_string(self.out_folder_beads)
 		if not os.path.exists(out_folder_cell):
@@ -118,12 +122,12 @@ class input_info:
 		self.tracking_pairs = tracking_pairs
 
 	def get_tracking_pairs(self):
-		out_folder = self.concat_root_to_string(self.out_folder)
-		if not os.path.exists(out_folder):
-			os.makedirs(out_folder)
+		_ = self.get_out_folder()
 		return self.tracking_pairs
 
 	def get_out_folder(self):
+		if self.out_folder is None:
+			self.out_folder = 'Post_proc_summary'
 		out_folder = self.concat_root_to_string(self.out_folder)
 		if not os.path.exists(out_folder):
 			os.makedirs(out_folder)

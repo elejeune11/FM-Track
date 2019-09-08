@@ -36,7 +36,7 @@ def run_tracking_all_steps(run_pre_process, run_tracking, run_post_process, info
 	num_tracking_pairs = len(tracking_pairs)
 	if run_tracking:
 		for kk in range(0,num_tracking_pairs):
-			closest_no_conflict = track.track_main_call(track_type,tracking_pairs[kk][0],tracking_pairs[kk][1], num_feat,num_nearest, buffer_cell, info.get_out_folder())
+			closest_no_conflict = track.track_main_call(track_type,tracking_pairs[kk][0],tracking_pairs[kk][1], num_feat,num_nearest, buffer_cell, info.root_directory)
 	##########################################################################################
 	# post process 
 	##########################################################################################

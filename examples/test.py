@@ -9,7 +9,7 @@ filenames_cell = [ \
     'No Magnet 2/Magnetic Bead/No Magnet 2%s.tif']
 dirnames_cell = [ \
     'Magnet/Magnetic Bead/',\
-    'self.root_directory + ''No Magnet/Magnetic Bead/',\
+    'No Magnet/Magnetic Bead/',\
     'No Magnet 2/Magnetic Bead/']
 
 filenames_beads = [ \
@@ -36,13 +36,16 @@ tracking_pairs = [ \
 
 
 # initialize an input_info object by passing in the root data directory path
-info = input_info('/Users/<username>/Desktop/data')
+info = input_info('/Users/jakesansom/Desktop/data')
 info.set_filenames_cell(filenames_cell)
 info.set_dirnames_cell(dirnames_cell)
 info.set_filenames_beads(filenames_beads)
 info.set_dirnames_beads(dirnames_beads)
 info.set_out_folder_cell(out_folder_cell)
 info.set_out_folder_beads(out_folder_beads)
+info.set_out_folder(out_folder)
+info.set_tracking_pairs(tracking_pairs)
+info.set_savefnames(savefnames)
 info.set_out_folder(out_folder)
 info.set_tracking_pairs(tracking_pairs)
 

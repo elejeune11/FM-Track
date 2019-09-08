@@ -44,6 +44,13 @@ class input_info:
 		self.run_GP = False
 		self.use_corrected_cell = True
 
+	def concat_root_to_string(self,path):
+		if self.root_directory is not None:
+			filename = os.path.join(self.root_directory,path)
+			return filename
+		else:
+			raise Exception('root_directory property must be specified')
+
 	def concat_root_to_all(self,array):
 		if self.root_directory is not None:
 			filenames = np.array([])
@@ -91,8 +98,8 @@ class input_info:
 		self.savefnames = savefnames
 		
 	def get_savenames(self):
-		out_folder_cell = self.concat_root_to_all(self.out_folder_cell)
-		out_folder_beads = self.concat_root_to_all(self.out_folder_beads)
+		out_folder_cell = self.concat_root_to_string(self.out_folder_cell)
+		out_folder_beads = self.concat_root_to_string(self.out_folder_beads)
 		if not os.path.exists(out_folder_cell):
 			os.makedirs(out_folder_cell)
 		if not os.path.exists(out_folder_beads):
@@ -111,13 +118,13 @@ class input_info:
 		self.tracking_pairs = tracking_pairs
 
 	def get_tracking_pairs(self):
-		out_folder = self.concat_root_to_all(self.out_folder)
+		out_folder = self.concat_root_to_string(self.out_folder)
 		if not os.path.exists(out_folder):
 			os.makedirs(out_folder)
 		return self.tracking_pairs
 
 	def get_out_folder(self):
-		out_folder = self.concat_root_to_all(self.out_folder)
+		out_folder = self.concat_root_to_string(self.out_folder)
 		if not os.path.exists(out_folder):
 			os.makedirs(out_folder)
 		return out_folder

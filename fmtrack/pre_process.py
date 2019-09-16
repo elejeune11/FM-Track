@@ -99,6 +99,8 @@ def output_paraview_file(verts,faces,filename):
 	surf = pyvista.PolyData(verts, faces)
 	surf.save(filename)
 
+	#meshio.Mesh(points, cells={'tetra':faces})
+
 
 ##########################################################################################
 # functions to pre-process bead images

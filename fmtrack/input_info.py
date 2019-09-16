@@ -21,9 +21,6 @@ class input_info:
 		self.cell_channel = 0 #CellBrite Red
 		self.bead_channel = 1 #Green fluorescent beads 
 
-		# For get FOV_dims()
-		self.fov_dims = np.array([[149.95, 149.95, 140.0], [141.70, 141.70, 120.0], [149.95, 149.95, 120.0]])
-
 		# For get_cell_thresh()
 		self.cell_thresh = 1.0
 
@@ -57,6 +54,16 @@ class input_info:
 			return filenames
 		else:
 			raise Exception('root_directory property must be specified')
+
+	def set_inputs(self,filenames_cell,filenames_beads,savefnames,tracking_pairs,fov_dims):
+		self.set_filenames_cell(filenames_cell)
+		self.set_filenames_beads(filenames_beads)
+		self.set_savefnames(savefnames)
+		self.set_tracking_pairs(tracking_pairs)
+		self.set_fov_dims(fov_dims)
+
+	def set_fov_dims(self,fov_dims):
+		self.fov_dims = fov_dims
 
 	def set_filenames_cell(self,filenames_cell):
 		self.filenames_cell = filenames_cell

@@ -25,6 +25,10 @@
     modifications that you can make
 """
 
+# before running this program, reset this root_directory variable to be the path 
+# of your data folder
+root_directory = '/Users/<username>/Desktop/data'
+
 ##########################################################################################
 # section (1)
 # import the necessary modules to use FM-Track
@@ -77,8 +81,8 @@ fov_dims = np.array([[149.95, 149.95, 140.0], [141.70, 141.70, 120.0], [149.95, 
 # in this first line, we initialize the input_info object by passing in the
 # root_directory path. The root_directory is the parent folder containing all
 # of the subfolders with data inside. This example script runs on the data folder
-# included in the examples folder
-info = input_info('/Users/<username>/Desktop/data')
+# included in the examples folder. Set this value at the top of the script
+info = input_info(root_directory)
 
 # these lines use specific functions to pass in the variables we specified in
 # section 2

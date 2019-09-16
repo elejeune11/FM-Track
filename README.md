@@ -55,10 +55,6 @@ For a greater description of all of these, please refer to the [technical overvi
 * [py-earth](https://github.com/scikit-learn-contrib/py-earth) - Used to compute multivariate adaptive regression splines
 * [scikit-learn](https://scikit-learn.org/stable/) - Used to generate Gaussian Process Regression models
 
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning.
-
 ## Authors
 
 * Emma Lejeune

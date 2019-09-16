@@ -19,8 +19,7 @@
     programming, an "object" makes it easy to bundle many variables and functions together.
     Here, an input_info object is created, and all of the folder names are passed
     into the object for easy storage and recall.
-    (4) running the actual code. As should seem obvious, in this section the actual code
-    is run
+    (4) running the actual code. As should seem obvious, in this section we run the code
     (5) optional parameter changes. This section demonstrates additional software
     modifications that you can make
 """

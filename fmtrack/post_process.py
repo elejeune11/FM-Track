@@ -531,7 +531,6 @@ def interpolate_gp_model(plane_case, center, gp, scaler, X_DIM, Y_DIM, Z_DIM ):
 		RES = np.zeros((grid_pts,grid_pts))
 	
 	# --> fit model grid 
-	column_selected = 0 
 	for j in range(0,grid_pts):
 		input = []
 		for k in range(0,grid_pts):

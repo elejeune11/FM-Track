@@ -82,7 +82,7 @@ def get_cell_surface(path,input_file,save_file,color_idx, X_DIM, Y_DIM, Z_DIM, c
 	
 	# get the cell surface mesh from the marching cubes algorithm and the isolated cell image
 	# https://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.marching_cubes_lewiner
-	verts,faces, normals,values = marching_cubes_lewiner(bw_cell,spacing=(X_DIM/bw_cell.shape[0], Y_DIM/bw_cell.shape[1], Z_DIM/bw_cell.shape[2]))
+	verts,faces, normals,_ = marching_cubes_lewiner(bw_cell,spacing=(X_DIM/bw_cell.shape[0], Y_DIM/bw_cell.shape[1], Z_DIM/bw_cell.shape[2]))
 	
 	# save surface mesh info
 	np.savetxt(save_file + 'mesh.txt',verts)

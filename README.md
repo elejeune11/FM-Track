@@ -30,7 +30,7 @@ sudo python setup.py install
 
 ## Testing and Usage
 
-The easiest way to learn how to use FM-Track is by looking at the [test.py](examples/test.py) script. This script runs FM-Track on a set of sample data so you can see how it works on test data before trying it on your own. To properly use this file, copy the [data](examples/data) folder to your Desktop (or somewhere easily accessible), then change the root_directory variable at the top of test.py to store the path of this data folder. Next, run test.py using an IDE or in terminal by running:
+The easiest way to learn how to use FM-Track is by looking at the [test.py](examples/test.py) script. This script runs FM-Track on a set of sample data so you can see how it works on test data before trying it on your own. To properly use this file, copy the [data](examples/data) folder to your Desktop (or somewhere easily accessible), then change the `root_directory` variable at the top of test.py to store the path of this data folder. Next, run test.py using an IDE or in terminal by calling the following commands:
 
 ```
 conda activate fmtrack
@@ -60,9 +60,6 @@ For a greater description of all of these, please refer to the [technical overvi
 
 * Emma Lejeune
 * Alex Khang
-
-## Contributors
-
 * Jake Sansom
 
 ## License

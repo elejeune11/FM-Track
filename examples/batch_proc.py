@@ -42,9 +42,9 @@ fov_dims = np.dstack((fov_dims1,fov_dims2,fov_dims3))
 # between "data1" and "data10", glob will automatically change the star to equal each
 # of these names and return an array of all of them to loop through
 root_directories = glob('/Users/<username>/Desktop/<parent-folder>/*')
-print(root_directories)
 
 for i in range(fov_dims.shape[0]):
+    print('Running on ' + root_directories[i])
     info = input_info(root_directories[i])
     info.set_inputs(filenames_cell, filenames_beads, savefnames, tracking_pairs, fov_dims[i])
     run_tracking_all_steps(True,True,True,info)

@@ -38,6 +38,11 @@ class input_info:
 		self.plot_type = 6.0
 		self.run_GP = False
 		self.use_corrected_cell = True
+		self.should_plot = False
+
+		self.set_out_folder_cell('Gel_cell_coords')
+		self.set_out_folder_beads('Gel_bead_center_coords')
+		self.set_out_folder('Post_proc_summary')
 
 	def concat_root_to_string(self,path):
 		if self.root_directory is not None:

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import pickle
+import pyvista
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import (RBF, Matern, RationalQuadratic,
                                               ExpSineSquared, DotProduct,
@@ -298,6 +299,23 @@ def plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W, cell_center
 		axi.set_ylabel(r'y-position $\mu m$')
 	return 
 
+def plot_vector_field(X,Y,Z,U,V,W,cell_init,cell_final,dir_score):
+
+	XYZ = np.vstack((X,Y,Z)).transpose()
+	UVW = np.vstack((U,V,W)).transpose()
+
+	point_cloud = pyvista.PolyData(XYZ)
+	point_cloud["dot(cell normal, displacement)"] = dir_score
+	point_cloud['vectors'] = UVW
+	geom = pyvista.Arrow()
+	arrows = point_cloud.glyph(orient='vectors', scale=False, factor=5.0,geom=geom)
+	plotter = pyvista.Plotter()
+	plotter.add_mesh(cell_init, color='maroon')
+	plotter.add_mesh(cell_final, color='grey')
+	plotter.add_mesh(arrows)
+	plotter.show_grid()
+	plotter.show()
+
 # --> plot a cell-vector row 
 def plot_cell_vector_slice_row(ax_list,color_type,color_info,X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_center_2,cell_mesh_2,X_DIM,Y_DIM,Z_DIM):
 	axi = ax_list[0] 
@@ -445,7 +463,7 @@ def plot_all(folder, root_directory, file_prefix_1,file_prefix_2,dir_score,neigh
 	return 
 
 # call individual plots, plus call multiple subplots
-def call_plot_main(plot_type,file_prefix_1,file_prefix_2,num_feat,X_DIM,Y_DIM,Z_DIM,figtype_list,use_corrected_cell,root_directory):
+def call_plot_main(plot_type,file_prefix_1,file_prefix_2,num_feat,X_DIM,Y_DIM,Z_DIM,figtype_list,use_corrected_cell,root_directory,should_plot):
 	folder = root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2 
 	if use_corrected_cell:
 		cell_mesh_2 = np.loadtxt(folder + '/cell_mesh_2_corrected.txt')
@@ -469,6 +487,8 @@ def call_plot_main(plot_type,file_prefix_1,file_prefix_2,num_feat,X_DIM,Y_DIM,Z_
 		plot_only_slice(dir_score,X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_center_2,cell_mesh_2,X_DIM,Y_DIM,Z_DIM,folder,figtype_list)
 	if plot_type == 5 or plot_type == 6: # plots magnitude wrt distance from surface
 		plot_only_distance(cell_mesh_1,dist_from_edge,dist_from_cell,mag_list,folder,figtype_list)
+	if should_plot:
+		plot_vector_field(X,Y,Z,U,V,W, cell_mesh_1, cell_mesh_2, dir_score)
 	return
 
 ##########################################################################################

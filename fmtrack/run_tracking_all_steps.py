@@ -45,7 +45,7 @@ def run_tracking_all_steps(run_pre_process, run_tracking, run_post_process, info
 	if run_post_process:
 		for kk in range(0,num_tracking_pairs):
 			post_process.call_plot_main(plot_type,tracking_pairs[kk][0], tracking_pairs[kk][1],num_feat,\
-				X_DIM,Y_DIM,Z_DIM,figtype_list, use_corrected_cell, info.root_directory)
+				X_DIM,Y_DIM,Z_DIM,figtype_list, use_corrected_cell, info.root_directory, info.should_plot)
 			
 		if run_GP:
 			for kk in range(0,num_tracking_pairs):

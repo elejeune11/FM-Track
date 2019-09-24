@@ -139,3 +139,4 @@ info.figtype_list = ['.png']
 info.plot_type = 6.0
 info.run_GP = False
 info.use_corrected_cell = True
+info.should_plot = True # 3D plotting using PyVista

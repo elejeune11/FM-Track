@@ -21,7 +21,8 @@ def run_tracking_all_steps(run_pre_process, run_tracking, run_post_process, info
 	##########################################################################################
 	# pre-process
 	##########################################################################################
-	print('Running Pre-Processing Step')
+	if info.print_progress:
+		print('Running Pre-Processing Step')
 	num_imgs = len(filenames_beads)
 	if run_pre_process:
 		for kk in range(0,num_imgs):
@@ -32,15 +33,17 @@ def run_tracking_all_steps(run_pre_process, run_tracking, run_post_process, info
 	##########################################################################################
 	# run tracking 
 	##########################################################################################
-	print('Tracking')
+	if info.print_progress:
+		print('Calculating:')
 	num_tracking_pairs = len(tracking_pairs)
 	if run_tracking:
 		for kk in range(0,num_tracking_pairs):
-			_ = track.track_main_call(track_type,tracking_pairs[kk][0],tracking_pairs[kk][1], num_feat,num_nearest, buffer_cell, info.root_directory)
+			_ = track.track_main_call(track_type,tracking_pairs[kk][0],tracking_pairs[kk][1], num_feat,num_nearest, buffer_cell, info)
 	##########################################################################################
 	# post process 
 	##########################################################################################
-	print('Running Post-Processing Step')
+	if info.print_progress:
+		print('Running Post-Processing Step')
 	num_tracking_pairs = len(tracking_pairs)
 	if run_post_process:
 		for kk in range(0,num_tracking_pairs):

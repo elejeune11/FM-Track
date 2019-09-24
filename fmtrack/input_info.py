@@ -39,6 +39,7 @@ class input_info:
 		self.run_GP = False
 		self.use_corrected_cell = True
 		self.should_plot = False
+		self.print_progress = True
 
 		self.set_out_folder_cell('Gel_cell_coords')
 		self.set_out_folder_beads('Gel_bead_center_coords')

@@ -45,31 +45,30 @@ import numpy as np
 # these strings specify the paths (relative to the root_directory, explained below)
 # where FM-Track should look for your cellular data and bead data
 filenames_cell = [ \
-    'Magnet/Magnetic Bead/Magnet%s.tif',\
-    'No Magnet/Magnetic Bead/No Magnet%s.tif',\
-    'No Magnet 2/Magnetic Bead/No Magnet 2%s.tif']
+    'CytoD/Cell/Gel 2 CytoD%s.tif',\
+    'Endo1/Cell/Gel 2 Endo1%s.tif',\
+    'Normal/Cell/Gel 2 Normal%s.tif']
 filenames_beads = [ \
-    'Magnet/Tracking Beads/Magnet%s.tif',\
-    'No Magnet/Tracking Beads/No Magnet%s.tif',\
-    'No Magnet 2/Tracking Beads/No Magnet 2%s.tif']
+    'CytoD/Beads/Gel 2 CytoD%s.tif',\
+    'Endo1/Beads/Gel 2 Endo1%s.tif',\
+    'Normal/Beads/Gel 2 Normal%s.tif']
 
 # these strings specify the filenames you would like to use for saving your data.
 # FM-Track will append other words to these names to create full filenames. An example
-# here would be MagnetSave_cell_faces.txt. Here, the code uses the name MagnetSave to
+# here would be CytoDSave_cell_faces.txt. Here, the code uses the name CytoDSave to
 # name the specific file
 savefnames = [ \
-    'MagnetSave',\
-    'NoMagnetSave',\
-    'NoMagnetSave2']
+    'CytoDSave',\
+    'Endo1Save',\
+    'NormalSave']
 
 # these strings specify the folder names of the tracking pairs you would like to analyze
 tracking_pairs = [ \
-    ['MagnetSave', 'NoMagnetSave'],\
-    ['NoMagnetSave', 'NoMagnetSave2'],\
-    ['MagnetSave', 'NoMagnetSave2']]
+    ['CytoDSave', 'Endo1Save'],\
+    ['CytoDSave', 'NormalSave'],\
+    ['Endo1Save', 'NormalSave']]
 
-# this line uses an array to store the dimensions of each gel. In this case, we store
-# the dimensions of Magnet, No Magnet, then No Magnet 2
+# this line uses an array to store the dimensions of the microscope's field of view
 fov_dims = np.array([[149.95, 149.95, 140.0], [141.70, 141.70, 120.0], [149.95, 149.95, 120.0]])
 
 ##########################################################################################

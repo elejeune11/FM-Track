@@ -299,7 +299,7 @@ def plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W, cell_center
 		axi.set_ylabel(r'y-position $\mu m$')
 	return 
 
-def plot_vector_field(X,Y,Z,U,V,W,cell_init,cell_final,dir_score):
+def plot_vector_field(X,Y,Z,U,V,W,cell_init,cell_final,dir_score,should_show,should_save,foldername):
 
 	XYZ = np.vstack((X,Y,Z)).transpose()
 	UVW = np.vstack((U,V,W)).transpose()
@@ -309,12 +309,22 @@ def plot_vector_field(X,Y,Z,U,V,W,cell_init,cell_final,dir_score):
 	point_cloud['vectors'] = UVW
 	geom = pyvista.Arrow()
 	arrows = point_cloud.glyph(orient='vectors', scale=False, factor=5.0,geom=geom)
-	plotter = pyvista.Plotter()
-	plotter.add_mesh(cell_init, color='maroon')
-	plotter.add_mesh(cell_final, color='grey')
-	plotter.add_mesh(arrows)
-	plotter.show_grid()
-	plotter.show()
+
+	mesh_init = pyvista.PolyData(cell_init)
+	mesh_final = pyvista.PolyData(cell_final)
+
+	if should_show:
+		plotter = pyvista.Plotter()
+		plotter.add_mesh(cell_init, color='maroon')
+		plotter.add_mesh(cell_final, color='grey')
+		plotter.add_mesh(arrows)
+		plotter.show_grid()
+		plotter.show()
+
+	if should_save:
+		mesh_init.save(os.path.join(foldername,'cell_init.vtk'))
+		mesh_final.save(os.path.join(foldername,'cell_final.vtk'))
+		arrows.save(os.path.join(foldername,'arrows.vtk'))
 
 # --> plot a cell-vector row 
 def plot_cell_vector_slice_row(ax_list,color_type,color_info,X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_center_2,cell_mesh_2,X_DIM,Y_DIM,Z_DIM):
@@ -488,7 +498,7 @@ def call_plot_main(plot_type,file_prefix_1,file_prefix_2,num_feat,X_DIM,Y_DIM,Z_
 	if plot_type == 5 or plot_type == 6: # plots magnitude wrt distance from surface
 		plot_only_distance(cell_mesh_1,dist_from_edge,dist_from_cell,mag_list,folder,figtype_list)
 	if should_plot:
-		plot_vector_field(X,Y,Z,U,V,W, cell_mesh_1, cell_mesh_2, dir_score)
+		plot_vector_field(X,Y,Z,U,V,W, cell_mesh_1, cell_mesh_2, dir_score,should_plot,True,folder)
 	return
 
 ##########################################################################################

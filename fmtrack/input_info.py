@@ -68,10 +68,10 @@ class input_info:
 		self.set_tracking_pairs(tracking_pairs)
 		self.set_fov_dims(fov_dims,variable_fov=variable_fov)
 
-	def set_fov_dims(self,fov_dims,variable_fov):
+	def set_fov_dims(self,fov_dims,variable_fov=False):
 		if self.filenames_cell is not None:
 			num_cells = len(self.filenames_cell)
-			if variable_fov:
+			if not variable_fov:
 				self.fov_dims = np.empty((0,3))
 				for _ in range(num_cells):
 					self.fov_dims = np.vstack((self.fov_dims, fov_dims))

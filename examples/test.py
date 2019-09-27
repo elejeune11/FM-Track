@@ -19,9 +19,9 @@
     programming, an "object" makes it easy to bundle many variables and functions together.
     Here, an input_info object is created, and all of the folder names are passed
     into the object for easy storage and recall.
-    (4) running the actual code. As should seem obvious, in this section we run the code
-    (5) optional parameter changes. This section demonstrates additional software
+    (4) optional parameter changes. This section demonstrates additional software
     modifications that you can make
+    (5) running the actual code. As should seem obvious, in this section we run the code
 """
 
 # before running this program, reset this root_directory variable to be the path 
@@ -69,7 +69,7 @@ tracking_pairs = [ \
     ['Endo1Save', 'NormalSave']]
 
 # this line uses an array to store the dimensions of the microscope's field of view
-fov_dims = np.array([[149.95, 149.95, 140.0], [141.70, 141.70, 120.0], [149.95, 149.95, 120.0]])
+fov_dims = np.array([149.95, 149.95, 140.0])
 
 ##########################################################################################
 # section (3)
@@ -92,19 +92,6 @@ info.num_feat = 5
 
 ##########################################################################################
 # section (4)
-# run all steps of the program
-##########################################################################################
-
-# by passing in True or False, you tell the program whether or not to run 
-# these three steps:
-# (1) the pre-processing, which delineats the cell structure and bead locations
-# (2) the actual tracking, which calculates the deformation
-# (3) the post_processing, which graphs the results
-run_tracking_all_steps(True,True,True,info)
-
-
-##########################################################################################
-# section (5)
 # additional, optional steps of the script
 ##########################################################################################
 
@@ -117,25 +104,38 @@ run_tracking_all_steps(True,True,True,info)
 # for the folders that store the cell's coordinates, the bead coordinates, and the
 # post_processing summary data. Functionality is still included to change them if
 # you'd like, but these lines are not necessary
-out_folder_cell = 'Gel_cell_coords'
-out_folder_beads = 'Gel_bead_center_coords'
-out_folder = 'Post_proc_summary'
-info.set_out_folder_cell(out_folder_cell)
-info.set_out_folder_beads(out_folder_beads)
-info.set_out_folder(out_folder)
+#out_folder_cell = 'Gel_cell_coords'
+#out_folder_beads = 'Gel_bead_center_coords'
+#out_folder = 'Post_proc_summary'
+#info.set_out_folder_cell(out_folder_cell)
+#info.set_out_folder_beads(out_folder_beads)
+#info.set_out_folder(out_folder)
 
 # use the following lines to change the tunable parameters of the script, if you'd like.
 # All of these values are the default values, but you may set them to whatever you'd like
-info.cell_channel = 0 #CellBrite Red
-info.bead_channel = 1 #Green fluorescent beads 
-info.cell_thresh = 1.0
-info.num_feat = 5
-info.num_nearest = 15
-info.buffer_cell_tracking = 0
-info.track_type = 2 # type 1 will NOT perform translation correction, type 2 will
-info.buffer_cell_translation = 30
-info.figtype_list = ['.png'] 
-info.plot_type = 6.0
-info.run_GP = False
-info.use_corrected_cell = True
-info.should_plot = True # 3D plotting using PyVista
+#info.cell_channel = 0 #CellBrite Red
+#info.bead_channel = 1 #Green fluorescent beads 
+#info.cell_thresh = 1.0
+#info.num_feat = 5
+#info.num_nearest = 15
+#info.buffer_cell_tracking = 0
+#info.track_type = 2 # type 1 will NOT perform translation correction, type 2 will
+#info.buffer_cell_translation = 30
+#info.figtype_list = ['.png'] 
+#info.plot_type = 6.0
+#info.run_GP = False
+#info.use_corrected_cell = True
+#info.should_plot = True # toggles 3D plotting using PyVista
+#info.print_progress = True # toggles all printing in algorithm
+
+##########################################################################################
+# section (5)
+# run all steps of the program
+##########################################################################################
+
+# by passing in True or False, you tell the program whether or not to run 
+# these three steps:
+# (1) the pre-processing, which delineats the cell structure and bead locations
+# (2) the actual tracking, which calculates the deformation
+# (3) the post_processing, which graphs the results
+run_tracking_all_steps(True,True,True,info)

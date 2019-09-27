@@ -38,7 +38,7 @@ class input_info:
 		self.plot_type = 6.0
 		self.run_GP = False
 		self.use_corrected_cell = True
-		self.should_plot = False
+		self.should_plot = True
 		self.print_progress = True
 
 		self.set_out_folder_cell('Gel_cell_coords')
@@ -61,15 +61,24 @@ class input_info:
 		else:
 			raise Exception('root_directory property must be specified')
 
-	def set_inputs(self,filenames_cell,filenames_beads,savefnames,tracking_pairs,fov_dims):
+	def set_inputs(self,filenames_cell,filenames_beads,savefnames,tracking_pairs,fov_dims,variable_fov=False):
 		self.set_filenames_cell(filenames_cell)
 		self.set_filenames_beads(filenames_beads)
 		self.set_savefnames(savefnames)
 		self.set_tracking_pairs(tracking_pairs)
-		self.set_fov_dims(fov_dims)
+		self.set_fov_dims(fov_dims,variable_fov=variable_fov)
 
-	def set_fov_dims(self,fov_dims):
-		self.fov_dims = fov_dims
+	def set_fov_dims(self,fov_dims,variable_fov):
+		if self.filenames_cell is not None:
+			num_cells = len(self.filenames_cell)
+			if variable_fov:
+				self.fov_dims = np.empty((0,3))
+				for _ in range(num_cells):
+					self.fov_dims = np.vstack((self.fov_dims, fov_dims))
+			else:
+				self.fov_dims = fov_dims
+		else:
+			raise Exception('filenames_cell property must be specified before set_fov_dims is called')
 
 	def set_filenames_cell(self,filenames_cell):
 		self.filenames_cell = filenames_cell

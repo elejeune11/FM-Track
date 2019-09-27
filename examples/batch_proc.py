@@ -32,10 +32,10 @@ tracking_pairs = [ \
 # create the fov_dims variable, which is a 3d array of dimension data. In
 # this example, we simply repeat the same numbers three times. Obviously,
 # with real data you should modify these numbers to match your experiment
-fov_dims1 = np.array([[149.95, 149.95, 140.0], [141.70, 141.70, 120.0], [149.95, 149.95, 120.0]])
-fov_dims2 = np.array([[149.95, 149.95, 140.0], [141.70, 141.70, 120.0], [149.95, 149.95, 120.0]])
-fov_dims3 = np.array([[149.95, 149.95, 140.0], [141.70, 141.70, 120.0], [149.95, 149.95, 120.0]])
-fov_dims = np.dstack((fov_dims1,fov_dims2,fov_dims3))
+fov_dims1 = np.array([149.95, 149.95, 140.0])
+fov_dims2 = np.array([149.95, 149.95, 140.0])
+fov_dims3 = np.array([149.95, 149.95, 140.0])
+fov_dims = np.vstack((fov_dims1,fov_dims2,fov_dims3))
 
 # list out root_directories from parent folder. The star will be replaced by the name
 # of all subdirectories in the <parent-folder>. For example, if you have 10 data folders

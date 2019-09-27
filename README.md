@@ -8,7 +8,7 @@ For a lengthier description, please refer to the [technical overview](technicalo
 
 ## Installation
 
-To install FM-Track, it is recommended to use Pip within a conda environment. Anaconda creates an [environment](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/environments.html) to make software dependencies and installations easier to manage. By installing FM-Track in a conda environment, Anaconda will automatically configure the proper dependencies for you and install them all into the correct location. Once installed into your environment, FM-Track can be run by using Python import statements and calling specific FM-Track functions.
+To install FM-Track, it is recommended to use Pip within a conda environment. Anaconda allows you to create [environments](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/environments.html) to make software dependencies and installations easier to manage. By installing FM-Track into a conda environment, Anaconda automatically configures the proper dependencies for you and installs them all into the correct location. Once installed, FM-Track can be run using [Python import statements](https://docs.python.org/3/reference/import.html). This allows you to import FM-Track functions from the Anaconda installation folder so they can be used in an external file.
 
 Currently, FM-Track is only compatible with Python <= 3.6. To create a compatible environment, use the following commands:
 
@@ -41,7 +41,7 @@ conda activate fmtrack
 python <path-to-test.py>
 ```
 
-When importing functions from FM-Track, test.py uses the files installed into your anaconda environment folder. Because of this, you must activate the environment every time you want to call FM-Track functions. To do this, use the command `conda activate fmtrack`.
+When importing functions from FM-Track, test.py looks for the files installed into your anaconda environment folder. Because of this, you must activate the environment every time you want to call FM-Track functions. To do this, use the command `conda activate fmtrack`.
 
 FM-Track uses the input_info class to store all your filepaths. The test.py file explains this in greater detail. Additionally, input_info stores the values of other tunable parameters. The test.py file explains this as well. The parameters that can be modified are as follows:
 

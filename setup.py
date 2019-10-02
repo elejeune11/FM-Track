@@ -35,7 +35,8 @@ setup(name='fm-track',
           'sklearn-contrib-py-earth',
           'scikit-image',
           'scikit-learn',
-          'pyvista'
+          'pyvista',
+          'tqdm'
       ],
       setup_requires=['numpy'],
       include_package_data=True,

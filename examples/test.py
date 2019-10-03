@@ -86,19 +86,13 @@ info = input_info(root_directory)
 # section 2
 info.set_inputs(filenames_cell, filenames_beads, savefnames, tracking_pairs, fov_dims)
 
-# this line demonstrates how to reset a tunable parameter. See section 5 for a
-# lengthier description
-info.num_feat = 5
-
 ##########################################################################################
 # section (4)
 # additional, optional steps of the script
 ##########################################################################################
 
 # if you would like to change any of these parameters when running your script, make
-# sure to copy paste these changes above where run_tracking_all_steps() is called.
-# For example, above I demonstrated how to change the parameter num_feat by setting
-# it to the default value
+# sure to place these changes above where run_tracking_all_steps() is called (line 135).
 
 # the following lines are optional. By default, input_info specifies these values,
 # for the folders that store the cell's coordinates, the bead coordinates, and the

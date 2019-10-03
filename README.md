@@ -15,6 +15,7 @@ Currently, FM-Track is only compatible with Python <= 3.6. To create a compatibl
 ```
 conda create -n fmtrack python=3.6 anaconda
 conda activate fmtrack
+conda install -c conda-forge latexcodec
 conda install pip
 ```
 
@@ -30,7 +31,7 @@ To complete the installation, run the following command:
 sudo python setup.py install
 ```
 
-Once running this command, you may delete the downloaded folder if you wish. The folder has now been copied into the proper Anaconda environment location. 
+Once running this command, you may delete the downloaded folder if you wish, however we strongly recommend keeping the examples folder in an easily accessible location. The source code folder (located in FM-Track-master/fmtrack) has now been copied into the proper Anaconda environment location. In other words, changing the source code will only affect the execution of scripts implementing FM-Track if you change the code now located in the Anaconda environment folder.
 
 ## Testing and Usage
 

@@ -319,7 +319,7 @@ def plot_vector_field(X,Y,Z,U,V,W,cell_init,cell_final,dir_score,should_show,sho
 		plotter.add_mesh(cell_final, color='grey')
 		plotter.add_mesh(arrows)
 		plotter.show_grid()
-		plotter.show()
+		plotter.show(title='Bead Deformation around Cell')
 
 	if should_save:
 		mesh_init.save(os.path.join(foldername,'cell_init.vtk'))

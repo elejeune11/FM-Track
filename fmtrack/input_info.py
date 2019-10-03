@@ -61,24 +61,15 @@ class input_info:
 		else:
 			raise Exception('root_directory property must be specified')
 
-	def set_inputs(self,filenames_cell,filenames_beads,savefnames,tracking_pairs,fov_dims,variable_fov=False):
+	def set_inputs(self,filenames_cell,filenames_beads,savefnames,tracking_pairs,fov_dims):
 		self.set_filenames_cell(filenames_cell)
 		self.set_filenames_beads(filenames_beads)
 		self.set_savefnames(savefnames)
 		self.set_tracking_pairs(tracking_pairs)
-		self.set_fov_dims(fov_dims,variable_fov=variable_fov)
+		self.set_fov_dims(fov_dims)
 
-	def set_fov_dims(self,fov_dims,variable_fov=False):
-		if self.filenames_cell is not None:
-			num_cells = len(self.filenames_cell)
-			if not variable_fov:
-				self.fov_dims = np.empty((0,3))
-				for _ in range(num_cells):
-					self.fov_dims = np.vstack((self.fov_dims, fov_dims))
-			else:
-				self.fov_dims = fov_dims
-		else:
-			raise Exception('filenames_cell property must be specified before set_fov_dims is called')
+	def set_fov_dims(self,fov_dims):
+		self.fov_dims = fov_dims
 
 	def set_filenames_cell(self,filenames_cell):
 		self.filenames_cell = filenames_cell
@@ -155,7 +146,7 @@ class input_info:
 		return self.cell_channel, self.bead_channel
 
 	def get_FOV_dims(self, type):
-		fov_dims = self.fov_dims[type-1]
+		fov_dims = self.fov_dims
 		X_DIM = fov_dims[0]
 		Y_DIM = fov_dims[1]
 		Z_DIM = fov_dims[2]

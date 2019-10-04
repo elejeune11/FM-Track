@@ -654,7 +654,7 @@ def plot_gp_model_one_row(ax_list,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,gp_model
 
 # --> plot GPR model 
 def plot_gp_model(file_prefix_1,file_prefix_2,X_DIM,Y_DIM,Z_DIM,figtype_list,use_corrected_cell, root_directory):
-	cell_mesh_1, cell_normal_1, cell_center_1, cell_vol_1, cell_mesh_2, cell_normal_2, cell_center_2, cell_vol_2 = import_cell_info(file_prefix_1,file_prefix_2)
+	cell_mesh_1, cell_normal_1, cell_center_1, cell_vol_1, cell_mesh_2, cell_normal_2, cell_center_2, cell_vol_2 = import_cell_info(file_prefix_1,file_prefix_2,root_directory)
 	
 	center = 0.5*cell_center_1 + 0.5*cell_center_2
 	folder = root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2

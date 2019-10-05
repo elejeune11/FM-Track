@@ -1,6 +1,8 @@
 # FM-Track
 
-![Sample deformation data](examples/sampleimage.png)
+<center>
+<img src="https://github.com/elejeune11/FM-Track/blob/master/examples/sampleimage.png" width="400" height="400">
+</center>
 
 FM-Track is a feature-based fiducial marker tracking software for applications in cell mechanics.
 

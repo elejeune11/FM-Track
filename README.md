@@ -1,5 +1,7 @@
 # FM-Track
 
+![Sample deformation data](examples/sampleimage.png)
+
 FM-Track is a feature-based fiducial marker tracking software for applications in cell mechanics.
 
 Research methods in mechanobiology that involve tracking the deformation of fiducial markers in the vicinity of a cell are increasing in popularity. Here we present a software called FM-Track, a software to facilitate feature-based particle tracking tailored to applications in cell mechanics. FM-Track contains functions for pre-processing images, running fiducial marker tracking, and simple post-processing and visualization. We expect that FM-Track will help researchers in mechanobiology and related fields by providing straightforward and extensible software written in the Python language.

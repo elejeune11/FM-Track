@@ -315,9 +315,11 @@ def plot_vector_field(X,Y,Z,U,V,W,cell_init,cell_final,dir_score,should_show,sho
 
 	if should_show:
 		plotter = pyvista.Plotter()
-		plotter.add_mesh(cell_init, color='maroon')
-		plotter.add_mesh(cell_final, color='grey')
-		plotter.add_mesh(arrows)
+		plotter.add_mesh(cell_final, color='maroon')
+		cmap = plt.cm.get_cmap("viridis_r")
+		plotter.add_mesh(arrows, cmap=cmap)
+		plotter.remove_scalar_bar()
+		plotter.add_scalar_bar('Dot(Cell Normal, Vector)', title_font_size=20, label_font_size=15, position_y=0.05)
 		plotter.show_grid()
 		plotter.show(title='Bead Deformation around Cell')
 

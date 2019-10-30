@@ -3,12 +3,15 @@
 ##########################################################################################
 import os 
 import numpy as np
+from . import pre_process
+from . import post_process
+from . import tracking as track
 
 ##########################################################################################
 # class to get path names and constants that can be modified
 ##########################################################################################
 
-class input_info:
+class InputInfo:
 
 	def __init__(self,root_directory=None):
 
@@ -44,6 +47,59 @@ class input_info:
 		self.set_out_folder_cell('Gel_cell_coords')
 		self.set_out_folder_beads('Gel_bead_center_coords')
 		self.set_out_folder('Post_proc_summary')
+
+	def run_tracking_all_steps(self,run_pre_process, run_tracking, run_post_process):
+		if run_pre_process:
+			self.run_pre_process()
+		if run_tracking:
+			self.run_tracking()
+		if run_post_process:
+			self.run_post_process()
+
+	def run_pre_process(self):
+		if self.print_progress:
+			print('Running Pre-Processing Step')
+		filenames_beads, dirnames_beads = self.get_filenames_beads()
+		filenames_cell, dirnames_cell  = self.get_filenames_cell()
+		savefnames_cell, savefnames_beads  = self.get_savenames()
+		cell_channel, bead_channel = self.get_color_channels()
+		cell_threshold = self.get_cell_thresh()
+		X_DIM, Y_DIM, Z_DIM = self.get_FOV_dims()
+		num_imgs = len(filenames_beads)
+		self.bead_array = []
+		self.mesh_array = []
+		for kk in range(0,num_imgs):
+			self.bead_array.append(pre_process.get_bead_centers(dirnames_beads[kk],filenames_beads[kk],\
+				savefnames_beads[kk],bead_channel, X_DIM, Y_DIM, Z_DIM))
+			self.mesh_array.append(pre_process.get_cell_surface(dirnames_cell[kk],filenames_cell[kk],\
+				savefnames_cell[kk],cell_channel, X_DIM, Y_DIM, Z_DIM, cell_threshold))
+
+	def run_tracking(self):
+		if self.print_progress:
+			print('Tracking:')
+		num_feat, num_nearest, buffer_cell, track_type  = self.get_tracking_params()
+		tracking_pairs = self.get_tracking_pairs()
+		num_tracking_pairs = len(tracking_pairs)
+		for kk in range(0,num_tracking_pairs):
+			_ = track.track_main_call(track_type,tracking_pairs[kk][0],tracking_pairs[kk][1], num_feat,num_nearest, buffer_cell, self)
+
+	def run_post_process(self):
+		if self.print_progress:
+			print('Running Post-Processing Step')
+		X_DIM, Y_DIM, Z_DIM = self.get_FOV_dims()
+		figtype_list, plot_type, run_GP, use_corrected_cell = self.get_postproc_info()
+		num_feat, num_nearest, buffer_cell, track_type  = self.get_tracking_params()
+		tracking_pairs = self.get_tracking_pairs()
+		num_tracking_pairs = len(tracking_pairs)
+		for kk in range(0,num_tracking_pairs):
+			post_process.call_plot_main(plot_type,tracking_pairs[kk][0], tracking_pairs[kk][1],num_feat,\
+				X_DIM,Y_DIM,Z_DIM,figtype_list, use_corrected_cell, self.root_directory, self.should_plot)
+			
+		if run_GP:
+			for kk in range(0,num_tracking_pairs):
+				post_process.create_GP_model(tracking_pairs[kk][0], tracking_pairs[kk][1], self.root_directory)
+				post_process.plot_gp_model(tracking_pairs[kk][0], tracking_pairs[kk][1],\
+					X_DIM,Y_DIM,Z_DIM,figtype_list, use_corrected_cell, self.root_directory)
 
 	def concat_root_to_string(self,path):
 		if self.root_directory is not None:
@@ -145,7 +201,7 @@ class input_info:
 	def get_color_channels(self): #for indexing 3D array with cell image and bead image
 		return self.cell_channel, self.bead_channel
 
-	def get_FOV_dims(self, type):
+	def get_FOV_dims(self):
 		fov_dims = self.fov_dims
 		X_DIM = fov_dims[0]
 		Y_DIM = fov_dims[1]

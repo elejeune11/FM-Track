@@ -8,6 +8,7 @@ from scipy import ndimage
 from skimage.filters import threshold_otsu
 from skimage.measure import label, regionprops, marching_cubes_lewiner   
 import pyvista
+from . import fmmesh
 ##########################################################################################
 # function to read tiff files 
 ##########################################################################################
@@ -40,7 +41,10 @@ def tif_reader(path,input_file,color_idx):
 #		- volume per cell 
 #		- cell center 
 ##########################################################################################
-def get_cell_surface(path,input_file,save_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_threshold):
+def get_cell_surface(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_threshold):
+
+	mesh = fmmesh.FMMesh()
+
 	# import the image file and apply a gaussian filter 
 	all_array = tif_reader(path,input_file,color_idx)
 	all_array = ndimage.gaussian_filter(all_array,2)
@@ -63,11 +67,11 @@ def get_cell_surface(path,input_file,save_file,color_idx, X_DIM, Y_DIM, Z_DIM, c
 	# save the cell volume
 	vox_size = X_DIM / bw.shape[1] * Y_DIM / bw.shape[0] * Z_DIM / bw.shape[2]
 	vol = areas[arg] * vox_size
-	np.savetxt( save_file + 'volume.txt' , np.asarray([vol]))
+	mesh.vol = vol
 	
 	# save the cell center
 	cell_center = np.asarray([ centroids[arg,1] * X_DIM / bw.shape[1] , centroids[arg,0] * Y_DIM / bw.shape[0] , centroids[arg,2] * Z_DIM / bw.shape[2] ])
-	np.savetxt( save_file + 'center.txt', cell_center)
+	mesh.center = cell_center
 	
 	# isolate the cell 
 	bw_cell = np.zeros(bw.shape)
@@ -85,21 +89,11 @@ def get_cell_surface(path,input_file,save_file,color_idx, X_DIM, Y_DIM, Z_DIM, c
 	verts,faces, normals,_ = marching_cubes_lewiner(bw_cell,spacing=(X_DIM/bw_cell.shape[0], Y_DIM/bw_cell.shape[1], Z_DIM/bw_cell.shape[2]))
 	
 	# save surface mesh info
-	np.savetxt(save_file + 'mesh.txt',verts)
-	np.savetxt(save_file + 'normals.txt',normals)
-	np.savetxt(save_file + 'faces.txt',faces)	
+	mesh.points = verts
+	mesh.normals = normals
+	mesh.faces = faces
 
-	output_paraview_file(verts,faces,save_file + 'paraview.vtk')
-	return 
-
-def output_paraview_file(verts,faces,filename):
-	threes = np.ones((faces.shape[0],1))*3
-	faces = np.hstack((threes,faces))
-
-	surf = pyvista.PolyData(verts, faces)
-	surf.save(filename)
-
-	#meshio.Mesh(points, cells={'tetra':faces})
+	return mesh
 
 
 ##########################################################################################
@@ -107,7 +101,7 @@ def output_paraview_file(verts,faces,filename):
 #	OUTPUTS:
 #		- x, y, z position of each bead based on the input images 
 ##########################################################################################
-def get_bead_centers(path,input_file,save_file,color_idx, X_DIM, Y_DIM, Z_DIM):
+def get_bead_centers(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM):
 	# import the image file and apply a gaussian filter 
 	all_array = tif_reader(path,input_file,color_idx)
 	all_array = ndimage.gaussian_filter(all_array,1)
@@ -134,6 +128,6 @@ def get_bead_centers(path,input_file,save_file,color_idx, X_DIM, Y_DIM, Z_DIM):
 	centroids_order[:,1] = centroids[:,0] * Y_DIM / bw.shape[0]
 	centroids_order[:,2] = centroids[:,2] * Z_DIM / bw.shape[2] 
 
-	np.savetxt(save_file,centroids_order)
-	return 
+	#np.savetxt(save_file,centroids_order)
+	return centroids_order
 

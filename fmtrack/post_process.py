@@ -1,17 +1,14 @@
 import fmtrack
 import os
+from pathlib import Path
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import pickle
 import pyvista
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import (RBF, Matern, RationalQuadratic,
-                                              ExpSineSquared, DotProduct,
-                                              ConstantKernel, WhiteKernel)
+from tqdm import tqdm
 from sklearn.neighbors import KernelDensity
-from sklearn import preprocessing
 ##########################################################################################
 # get filepath for matplotlib style
 ##########################################################################################
@@ -69,8 +66,10 @@ def color_point_neighbor_similarity(X, Y, Z, U, V, W, num_neigh):
 	return neigh_score 
 
 # compare bead displacement direction to the initial cell configuration 
-def color_point_direction(X, Y, Z, U, V, W, cell_mesh, cell_normal):
-	num_beads = X.shape[0]
+def color_point_direction(X, Y, Z, U, V, W, cell):
+	cell_mesh = cell.points
+	cell_normal = cell.normals
+
 	dir_score = [] 
 	dist_from_cell = [] 
 	mag_list = []
@@ -229,11 +228,16 @@ def plot_vectors(color_type, color_info, project_1, project_2, project_1d, proje
 	return 
 
 # --> plot a slice plot, each has beads and a cell 
-def plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W, cell_center_1,\
-		cell_mesh_1, cell_center_2, cell_mesh_2, plane_type, axi, X_DIM, Y_DIM, Z_DIM):
+def plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W,\
+		cell_init, cell_final, plane_type, axi, X_DIM, Y_DIM, Z_DIM):
 	num_beads = X.shape[0]
 	XYZ = np.zeros((num_beads,3)); XYZ[:,0] = X; XYZ[:,1] = Y; XYZ[:,2] = Z 
 	UVW = np.zeros((num_beads,3)); UVW[:,0] = U; UVW[:,1] = V; UVW[:,2] = W
+
+	cell_center_1 = cell_init.center
+	cell_center_2 = cell_final.center
+	cell_mesh_1 = cell_init.points
+	cell_mesh_2 = cell_final.points
 	
 	cell_center_avg = 0.5*cell_center_1 + 0.5*cell_center_2
 	
@@ -299,35 +303,6 @@ def plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W, cell_center
 		axi.set_ylabel(r'y-position $\mu m$')
 	return 
 
-def plot_vector_field(X,Y,Z,U,V,W,cell_init,cell_final,dir_score,should_show,should_save,foldername):
-
-	XYZ = np.vstack((X,Y,Z)).transpose()
-	UVW = np.vstack((U,V,W)).transpose()
-
-	point_cloud = pyvista.PolyData(XYZ)
-	point_cloud["dot(cell normal, displacement)"] = dir_score
-	point_cloud['vectors'] = UVW
-	geom = pyvista.Arrow()
-	arrows = point_cloud.glyph(orient='vectors', scale=False, factor=5.0,geom=geom)
-
-	mesh_init = pyvista.PolyData(cell_init)
-	mesh_final = pyvista.PolyData(cell_final)
-
-	if should_show:
-		plotter = pyvista.Plotter()
-		plotter.add_mesh(cell_final, color='maroon')
-		cmap = plt.cm.get_cmap("viridis_r")
-		plotter.add_mesh(arrows, cmap=cmap)
-		plotter.remove_scalar_bar()
-		plotter.add_scalar_bar('Dot(Cell Normal, Vector)', title_font_size=20, label_font_size=15, position_y=0.05)
-		plotter.show_grid()
-		plotter.show(title='Bead Deformation around Cell')
-
-	if should_save:
-		mesh_init.save(os.path.join(foldername,'cell_init.vtk'))
-		mesh_final.save(os.path.join(foldername,'cell_final.vtk'))
-		arrows.save(os.path.join(foldername,'arrows.vtk'))
-
 # --> plot a cell-vector row 
 def plot_cell_vector_slice_row(ax_list,color_type,color_info,X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_center_2,cell_mesh_2,X_DIM,Y_DIM,Z_DIM):
 	axi = ax_list[0] 
@@ -342,7 +317,14 @@ def plot_cell_vector_slice_row(ax_list,color_type,color_info,X,Y,Z,U,V,W,cell_ce
 	return 
 
 # --> plot cells
-def plot_only_cells(cell_mesh_1,cell_center_1,cell_vol_1,cell_mesh_2,cell_center_2,cell_vol_2,X_DIM,Y_DIM,Z_DIM,folder,figtype_list):
+def plot_only_cells(filename,cell_init,cell_final,X_DIM,Y_DIM,Z_DIM,figtype_list):
+	cell_mesh_1 = cell_init.points
+	cell_center_1 = cell_init.center
+	cell_vol_1 = cell_init.vol 
+	cell_mesh_2 = cell_final.points
+	cell_center_2 = cell_final.center
+	cell_vol_2 = cell_final.vol 
+
 	fig = plt.figure()
 	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
@@ -355,12 +337,12 @@ def plot_only_cells(cell_mesh_1,cell_center_1,cell_vol_1,cell_mesh_2,cell_center
 	plot_cell_3D(axi,2,cell_mesh_2, cell_center_2, cell_vol_2, X_DIM, Y_DIM, Z_DIM)
 	plt.tight_layout()
 	for end in figtype_list:
-		fname = folder + '/Cell_plots_3D' + end
+		fname = Path(filename).with_suffix(end)
 		plt.savefig(fname)
 	return  
 
 # --> plot scores
-def plot_only_scores(neigh_score,dir_score,folder,figtype_list):
+def plot_only_scores(filename,neigh_score,dir_score,figtype_list):
 	fig = plt.figure()
 	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
@@ -379,12 +361,17 @@ def plot_only_scores(neigh_score,dir_score,folder,figtype_list):
 	plot_scores_subplot(data,title,axi,color_type)
 	plt.tight_layout()
 	for end in figtype_list:
-		fname = folder + '/Score_plots' + end
+		fname = Path(filename).with_suffix(end)
 		plt.savefig(fname)
 	return
 
 # --> plot slice
-def plot_only_slice(dir_score,X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_center_2,cell_mesh_2,X_DIM,Y_DIM,Z_DIM,folder,figtype_list):
+def plot_only_slice(filename,dir_score,X,Y,Z,U,V,W,cell_init,cell_final,X_DIM,Y_DIM,Z_DIM,figtype_list):
+	cell_center_1 = cell_init.center
+	cell_mesh_2 = cell_init.points
+	cell_center_2 = cell_final.center
+	cell_mesh_2 = cell_final.points
+
 	fig = plt.figure()
 	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
@@ -395,24 +382,26 @@ def plot_only_slice(dir_score,X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_center_
 	color_info = dir_score
 	axi = fig.add_subplot(1,3,1)
 	plane_type = 1
-	plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W, cell_center_1,\
-		cell_mesh_1, cell_center_2, cell_mesh_2, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
+	plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W,\
+		cell_init, cell_final, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
 	axi = fig.add_subplot(1,3,2)
 	plane_type = 2
-	plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W, cell_center_1,\
-		cell_mesh_1, cell_center_2, cell_mesh_2, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
+	plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W,\
+		cell_init, cell_final, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
 	axi = fig.add_subplot(1,3,3)
 	plane_type = 3
-	plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W, cell_center_1,\
-		cell_mesh_1, cell_center_2, cell_mesh_2, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
+	plot_cell_vector_slice(color_type, color_info, X, Y, Z, U, V, W,\
+		cell_init, cell_final, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
 	plt.tight_layout()
 	for end in figtype_list:
-		fname = folder + '/Bead_disp_slice' + end
+		fname = Path(filename).with_suffix(end)
 		plt.savefig(fname)
 	return
 
 # --> plot distance
-def plot_only_distance(cell_mesh,dist_from_edge,dist_from_cell,mag_list,folder,figtype_list):
+def plot_only_distance(filename,cell,dist_from_edge,dist_from_cell,mag_list,figtype_list):
+	cell_mesh = cell.points
+
 	fig = plt.figure()
 	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
@@ -423,13 +412,20 @@ def plot_only_distance(cell_mesh,dist_from_edge,dist_from_cell,mag_list,folder,f
 	plot_surface_disp(axi,cell_mesh,dist_from_edge,dist_from_cell, mag_list)
 	plt.tight_layout()
 	for end in figtype_list:
-		fname = folder + '/Disp_wrt_dist' + end
+		fname = Path(filename).with_suffix(end)
 		plt.savefig(fname)
 	return 
 
 # --> plot all
-def plot_all(folder, root_directory, file_prefix_1,file_prefix_2,dir_score,neigh_score,dist_from_edge,dist_from_cell,mag_list,\
-		X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_vol_1,cell_center_2,cell_mesh_2,cell_vol_2,X_DIM,Y_DIM,Z_DIM,figtype_list):
+def plot_all(filename,dir_score,neigh_score,dist_from_edge,dist_from_cell,mag_list,\
+		X,Y,Z,U,V,W,cell_init,cell_final,X_DIM,Y_DIM,Z_DIM,figtype_list):
+	cell_center_1 = cell_init.center
+	cell_mesh_1 = cell_init.points
+	cell_vol_1 = cell_init.vol
+	cell_center_2 = cell_final.center
+	cell_mesh_2 = cell_final.points
+	cell_vol_2 = cell_final.vol
+
 	fig = plt.figure()
 	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
@@ -443,16 +439,16 @@ def plot_all(folder, root_directory, file_prefix_1,file_prefix_2,dir_score,neigh
 	plot_scores_subplot(data,title,axi,color_type)
 	axi = fig.add_subplot(2,4,2)
 	plane_type = 1
-	plot_cell_vector_slice(color_type, dir_score, X, Y, Z, U, V, W, cell_center_1,\
-		cell_mesh_1, cell_center_2, cell_mesh_2, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
+	plot_cell_vector_slice(color_type, dir_score, X, Y, Z, U, V, W,\
+		cell_init, cell_final, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
 	axi = fig.add_subplot(2,4,3)
 	plane_type = 2
-	plot_cell_vector_slice(color_type, dir_score, X, Y, Z, U, V, W, cell_center_1,\
-		cell_mesh_1, cell_center_2, cell_mesh_2, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
+	plot_cell_vector_slice(color_type, dir_score, X, Y, Z, U, V, W,\
+		cell_init, cell_final, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
 	axi = fig.add_subplot(2,4,4)
 	plane_type = 3
-	plot_cell_vector_slice(color_type, dir_score, X, Y, Z, U, V, W, cell_center_1,\
-		cell_mesh_1, cell_center_2, cell_mesh_2, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
+	plot_cell_vector_slice(color_type, dir_score, X, Y, Z, U, V, W,\
+		cell_init, cell_final, plane_type, axi, X_DIM, Y_DIM, Z_DIM)
 	axi = fig.add_subplot(2,4,5)
 	data = np.asarray(neigh_score)
 	color_type = 1 
@@ -467,41 +463,9 @@ def plot_all(folder, root_directory, file_prefix_1,file_prefix_2,dir_score,neigh
 	
 	plt.tight_layout()
 	for end in figtype_list:
-		fname = folder + '/Summary_plot' + end
-		plt.savefig(fname)
-	for end in figtype_list:
-		fname = root_directory + '/Post_proc_summary' + '/' + 'Summary_' + file_prefix_1 + '_to_' + file_prefix_2 + end
+		fname = Path(filename).with_suffix(end)
 		plt.savefig(fname) 
 	return 
-
-# call individual plots, plus call multiple subplots
-def call_plot_main(plot_type,file_prefix_1,file_prefix_2,num_feat,X_DIM,Y_DIM,Z_DIM,figtype_list,use_corrected_cell,root_directory,should_plot):
-	folder = root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2 
-	if use_corrected_cell:
-		cell_mesh_2 = np.loadtxt(folder + '/cell_mesh_2_corrected.txt')
-	X, Y, Z, U, V, W = import_bead_disps(folder)
-	cell_mesh_1, cell_normal_1, cell_center_1, cell_vol_1, cell_mesh_2, cell_normal_2, cell_center_2, cell_vol_2 = import_cell_info(file_prefix_1,file_prefix_2,root_directory)
-	
-	neigh_score = color_point_neighbor_similarity(X, Y, Z, U, V, W, num_feat)
-	dir_score, dist_from_cell, mag_list = color_point_direction(X, Y, Z, U, V, W, cell_mesh_1, cell_normal_1)
-	dist_from_edge = compute_dist_from_edge(X, Y, Z, X_DIM, Y_DIM, Z_DIM)
-	
-	#type 6 will create all plots
-	# --> arrange data 
-	if plot_type == 1 or plot_type == 6: # big plot with everything, saves it in two directories
-		plot_all(folder, root_directory, file_prefix_1,file_prefix_2,dir_score,neigh_score,dist_from_edge,dist_from_cell,mag_list,\
-			X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_vol_1,cell_center_2,cell_mesh_2,cell_vol_2,X_DIM,Y_DIM,Z_DIM,figtype_list)
-	if plot_type == 2 or plot_type == 6: # plots cells in both configurations 
-		plot_only_cells(cell_mesh_1,cell_center_1,cell_vol_1,cell_mesh_2,cell_center_2,cell_vol_2,X_DIM,Y_DIM,Z_DIM,folder,figtype_list)
-	if plot_type == 3 or plot_type == 6: # plots scores only 
-		plot_only_scores(neigh_score,dir_score,folder,figtype_list)
-	if plot_type == 4 or plot_type == 6: # plots slice only 
-		plot_only_slice(dir_score,X,Y,Z,U,V,W,cell_center_1,cell_mesh_1,cell_center_2,cell_mesh_2,X_DIM,Y_DIM,Z_DIM,folder,figtype_list)
-	if plot_type == 5 or plot_type == 6: # plots magnitude wrt distance from surface
-		plot_only_distance(cell_mesh_1,dist_from_edge,dist_from_cell,mag_list,folder,figtype_list)
-	if should_plot:
-		plot_vector_field(X,Y,Z,U,V,W, cell_mesh_1, cell_mesh_2, dir_score,should_plot,True,folder)
-	return
 
 ##########################################################################################
 # displacement interpolation -- use GPR 
@@ -704,3 +668,102 @@ def plot_gp_model(file_prefix_1,file_prefix_2,X_DIM,Y_DIM,Z_DIM,figtype_list,use
 	for end in figtype_list:
 		fname = folder + '/Interpolate_plot' + end
 		plt.savefig(fname)
+
+def calculate_deformation_tensor(x,y,z,gp_U,gp_V,gp_W,scaler):
+
+	x_min = np.amin(x); x_max = np.amax(x)
+	y_min = np.amin(z); y_max = np.amax(y)
+	z_min = np.amin(z); z_max = np.amax(z)
+
+	dx = min([x_max, y_max, z_max]) * 0.05
+
+	X, Y, Z = np.meshgrid(x,y,z)
+	X = X.flatten()
+	Y = Y.flatten()
+	Z = Z.flatten()
+
+	deformation_tensor_arr = np.zeros((X.size,3,3))
+
+	for k in tqdm(range(0,X.shape[0]), desc='Calculating deformation tensor'):
+		inputdata = []
+		li = [X[k],Y[k],Z[k]]
+		inputdata.append(li)
+		li = [X[k]+dx,Y[k],Z[k]]
+		inputdata.append(li)
+		li = [X[k],Y[k]+dx,Z[k]]
+		inputdata.append(li)
+		li = [X[k],Y[k],Z[k]+dx]
+		inputdata.append(li)
+
+		inputdata = np.asarray(inputdata)
+		inputdata = scaler.transform(inputdata)
+
+		outputdata = []
+		li = gp_U.predict(inputdata)
+		outputdata.append(li)
+		li = gp_V.predict(inputdata)
+		outputdata.append(li)
+		li = gp_W.predict(inputdata)
+		outputdata.append(li)
+
+		outputdata = np.asarray(outputdata)
+		outputdata = np.transpose(outputdata)
+
+		dX_mat = inputdata[1:4,:] - inputdata[0,:]
+		dx_mat = outputdata[1:4,:] - outputdata[0,:]
+
+		dx_mat = np.transpose(dx_mat / dx)
+
+		F = np.identity(3) + dx_mat
+
+		deformation_tensor_arr[k,:,:] = F
+
+	return deformation_tensor_arr
+"""
+
+from jax import grad, jit
+import jax.numpy as jnp
+def calculate_deformation_tensor(x,y,z,gp_U,gp_V,gp_W,scaler):
+
+	X, Y, Z = jnp.meshgrid(x,y,z)
+	X = X.flatten()
+	Y = Y.flatten()
+	Z = Z.flatten()
+
+	deformation_tensor_arr = jnp.zeros((X.size,3,3))
+
+	def fun_u(inputdata):
+		inputs = transform_input_data(inputdata)
+		return gp_U.predict(inputs)
+
+	def fun_v(inputdata):
+		inputs = transform_input_data(inputdata)
+		return gp_V.predict(inputs)
+
+	def fun_w(inputdata):
+		inputs = transform_input_data(inputdata)
+		return gp_W.predict(inputs)
+
+
+	def transform_input_data(inputdata):
+		#inputdata = [[x,y,z]]
+		#inputdata = np.asarray(inputdata)
+		inputdata = scaler.transform(inputdata)
+
+		return inputdata
+
+	for k in tqdm(range(0,X.shape[0]), desc='Calculating deformation tensor'):
+		
+		gradient_u = jit(grad(fun_u))
+		gradient_v = jit(grad(fun_v))
+		gradient_w = jit(grad(fun_w))
+
+		sample = jnp.array([X[k],Y[k],Z[k]])
+		print(gradient_u(sample))
+
+		#F = np.identity(3) + dx_mat
+
+		#deformation_tensor_arr[k,:,:] = F
+
+	return 0 #deformation_tensor_arr
+"""

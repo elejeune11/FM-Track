@@ -55,6 +55,46 @@ def import_data_no_cell(file_prefix_1,file_prefix_2, root_directory):
 # save results   
 ##########################################################################################
 def save_res(destination, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict, label_uncorrected):
+	if not os.path.exists(destination):
+		os.makedirs(destination)
+
+	U = x_pos_new - x_pos
+	V = y_pos_new - y_pos
+	W = z_pos_new - z_pos
+
+
+	np.savetxt(os.path.join(destination,'X.txt'),x_pos)
+	np.savetxt(os.path.join(destination,'Y.txt'),y_pos)
+	np.savetxt(os.path.join(destination,'Z.txt'),z_pos)
+
+	if label_uncorrected:
+		np.savetxt(os.path.join(destination,'U_uncorrected.txt'),U)
+		np.savetxt(os.path.join(destination,'V_uncorrected.txt'),V)
+		np.savetxt(os.path.join(destination,'W_uncorrected.txt'),W)
+	else:
+		np.savetxt(os.path.join(destination,'U.txt'),U)
+		np.savetxt(os.path.join(destination,'V.txt'),V)
+		np.savetxt(os.path.join(destination,'W.txt'),W)
+
+def load_res(destination,label_uncorrected):
+	X = np.loadtxt(os.path.join(destination,'X.txt'))
+	Y = np.loadtxt(os.path.join(destination,'Y.txt'))
+	Z = np.loadtxt(os.path.join(destination,'Z.txt'))
+
+	if label_uncorrected:
+		U = np.loadtxt(os.path.join(destination,'U_uncorrected.txt'))
+		V = np.loadtxt(os.path.join(destination,'V_uncorrected.txt'))
+		W = np.loadtxt(os.path.join(destination,'W_uncorrected.txt'))
+	else:
+		U = np.loadtxt(os.path.join(destination,'U.txt'))
+		V = np.loadtxt(os.path.join(destination,'V.txt'))
+		W = np.loadtxt(os.path.join(destination,'W.txt'))
+
+	return X, Y, Z, U, V, W
+
+
+def get_corrected_beads(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict):
+
 	X = []; Y = []; Z = []; U = []; V = []; W = [] 
 	num_pts = len(x_pos)
 	for kk in range(0,num_pts):
@@ -63,26 +103,22 @@ def save_res(destination, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, 
 			X.append(x_pos[kk])
 			Y.append(y_pos[kk])
 			Z.append(z_pos[kk])
+
 			U.append(x_pos_new[idx] - x_pos[kk])
 			V.append(y_pos_new[idx] - y_pos[kk])
-			W.append(z_pos_new[idx] - z_pos[kk]) 
+			W.append(z_pos_new[idx] - z_pos[kk])
 
-	np.savetxt(destination + '/X.txt',np.asarray(X))
-	np.savetxt(destination + '/Y.txt',np.asarray(Y))
-	np.savetxt(destination + '/Z.txt',np.asarray(Z))
+	X = np.asarray(X)
+	Y = np.asarray(Y)
+	Z = np.asarray(Z)
+	U = np.asarray(U)
+	V = np.asarray(V)
+	W = np.asarray(W)
 
-	if label_uncorrected:
-		np.savetxt(destination + '/U_uncorrected.txt',np.asarray(U))
-		np.savetxt(destination + '/V_uncorrected.txt',np.asarray(V))
-		np.savetxt(destination + '/W_uncorrected.txt',np.asarray(W))
-	else:
-		np.savetxt(destination + '/U.txt',np.asarray(U))
-		np.savetxt(destination + '/V.txt',np.asarray(V))
-		np.savetxt(destination + '/W.txt',np.asarray(W))
-	return
+	return X, Y, Z, U, V, W
 
 def save_corrected_cell(destination,cell_mesh):
-	np.savetxt(destination + '/cell_mesh_2_corrected.txt',cell_mesh)
+	np.savetxt(os.path.join(destination,'cell_mesh_2_corrected.txt'),cell_mesh.points)
 	return 
 ##########################################################################################
 # helper functions  
@@ -264,15 +300,18 @@ def check_backward_forward(closest_no_conflict_f,closest_no_conflict_b):
 # --> sometimes, microscope translation and/or gel swelling can lead to translation
 # --> this function will correct for this translation and then re-run the tracking algorithm
 # --> this only deals with corrections with respect to the z direction 
-def translation_correction(cell_mesh, cell_mesh_2, buffer_cell,\
-	x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict, directory ):
+def translation_correction(cell_init, cell_final, buffer_cell,\
+	x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict):
+
+	points_init = cell_init.points
+	points_final = cell_final.points
 	
-	x_min = np.min([np.min(cell_mesh[:,0]),np.min(cell_mesh_2[:,0])]) - buffer_cell 
-	x_max = np.max([np.max(cell_mesh[:,0]),np.max(cell_mesh_2[:,0])]) + buffer_cell
-	y_min = np.min([np.min(cell_mesh[:,1]),np.min(cell_mesh_2[:,1])]) - buffer_cell
-	y_max = np.max([np.max(cell_mesh[:,1]),np.max(cell_mesh_2[:,1])]) + buffer_cell
-	z_min = np.min([np.min(cell_mesh[:,2]),np.min(cell_mesh_2[:,2])]) - buffer_cell
-	z_max = np.max([np.max(cell_mesh[:,2]),np.max(cell_mesh_2[:,2])]) + buffer_cell
+	x_min = np.min([np.min(points_init[:,0]),np.min(points_final[:,0])]) - buffer_cell 
+	x_max = np.max([np.max(points_init[:,0]),np.max(points_final[:,0])]) + buffer_cell
+	y_min = np.min([np.min(points_init[:,1]),np.min(points_final[:,1])]) - buffer_cell
+	y_max = np.max([np.max(points_init[:,1]),np.max(points_final[:,1])]) + buffer_cell
+	z_min = np.min([np.min(points_init[:,2]),np.min(points_final[:,2])]) - buffer_cell
+	z_max = np.max([np.max(points_init[:,2]),np.max(points_final[:,2])]) + buffer_cell
 	
 	num_pts = len(x_pos)
 	X = []; Y = []; Z = []; U = []; V = []; W = [] 
@@ -322,40 +361,43 @@ def translation_correction(cell_mesh, cell_mesh_2, buffer_cell,\
 		z_pos_new[kk] = z_pos_new[kk] - pred_W[kk] 
 	
 	# --> correct new cell position 
-	pred_cell_0 = model_U.predict(cell_mesh_2[:,0])
-	pred_cell_1 = model_V.predict(cell_mesh_2[:,1])
-	pred_cell_2 = model_W.predict(cell_mesh_2[:,2])
+	pred_cell_0 = model_U.predict(points_final[:,0])
+	pred_cell_1 = model_V.predict(points_final[:,1])
+	pred_cell_2 = model_W.predict(points_final[:,2])
 	
-	cell_mesh_2_new = np.zeros(cell_mesh_2.shape)
-	cell_mesh_2_new[:,0] = cell_mesh_2[:,0] - pred_cell_0
-	cell_mesh_2_new[:,1] = cell_mesh_2[:,1] - pred_cell_1
-	cell_mesh_2_new[:,2] = cell_mesh_2[:,2] - pred_cell_2
+	points_final_new = np.zeros(points_final.shape)
+	points_final_new[:,0] = points_final[:,0] - pred_cell_0
+	points_final_new[:,1] = points_final[:,1] - pred_cell_1
+	points_final_new[:,2] = points_final[:,2] - pred_cell_2
+
+	cell_final_new = cell_final
+	cell_final_new.points = points_final_new
 	
 	# --> plot MARS models 
 	Z_line = np.linspace(np.min(Z),np.max(Z),100)
 	pred_line_U = model_U.predict(Z_line)
 	pred_line_V = model_V.predict(Z_line)
 	pred_line_W = model_W.predict(Z_line)
-	
-	plt.figure(figsize=(15,5))
-	plt.subplot(1,3,1)
-	plt.plot(Z,U,'b.',label='x raw')
-	plt.plot(Z_line,pred_line_U,'k--',label='fit')
-	plt.xlabel('z position'); plt.ylabel('displacement')
-	plt.tight_layout(); plt.legend(); plt.title('x displacements')
-	plt.subplot(1,3,2)
-	plt.plot(Z,V,'r.',label='y raw')
-	plt.plot(Z_line,pred_line_V,'k--',label='fit')
-	plt.xlabel('z position'); plt.ylabel('displacement')
-	plt.tight_layout(); plt.legend(); plt.title('y displacements')
-	plt.subplot(1,3,3)
-	plt.plot(Z,W,'g.',label='z raw')
-	plt.plot(Z_line,pred_line_W,'k--',label='fit')
-	plt.xlabel('z position'); plt.ylabel('displacement')
-	plt.tight_layout(); plt.legend(); plt.title('z displacements')
-	plt.savefig(directory + '/translation_correction.png')
-	
-	return x_pos_new, y_pos_new, z_pos_new, cell_mesh_2_new 
+
+	fig = plt.figure(figsize=(15,5))
+	fig.tight_layout()
+	ax1 = fig.add_subplot(1,3,1)
+	ax1.plot(Z,U,'b.',label='x raw')
+	ax1.plot(Z_line,pred_line_U,'k--',label='fit')
+	ax1.set_xlabel('z position'); ax1.set_ylabel('displacement')
+	ax1.legend(); ax1.set_title('x displacements')
+	ax2 = fig.add_subplot(1,3,2)
+	ax2.plot(Z,V,'r.',label='y raw')
+	ax2.plot(Z_line,pred_line_V,'k--',label='fit')
+	ax2.set_xlabel('z position'); ax2.set_ylabel('displacement')
+	ax2.legend(); ax2.set_title('y displacements')
+	ax3 = fig.add_subplot(1,3,3)
+	ax3.plot(Z,W,'g.',label='z raw')
+	ax3.plot(Z_line,pred_line_W,'k--',label='fit')
+	ax3.set_xlabel('z position'); ax3.set_ylabel('displacement')
+	ax3.legend(); ax3.set_title('z displacements')
+
+	return x_pos_new, y_pos_new, z_pos_new, cell_final_new, fig
 
 ##########################################################################################
 # main tracking functions 
@@ -392,44 +434,46 @@ def two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_n
 	return closest_no_conflict, idx_ignored
 
 # --> two way tracking with translation correction (track, correct, track again)
-def track_correct_track(folder, num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, directory, cell_mesh, cell_mesh_2, buffer_cell, print_progress=False):
+def track_correct_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_mesh, cell_mesh_2, buffer_cell, print_progress=False):
 	# --> run two way tracking 
 	closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, print_progress=print_progress)
 	
-	label_uncorrected = True
-	save_res(folder, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict,label_uncorrected)
 	# --> correct translation 	
-	x_pos_new, y_pos_new, z_pos_new, cell_mesh_2_new = translation_correction(cell_mesh, cell_mesh_2, buffer_cell,\
-		x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict, directory )
+	x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure = translation_correction(cell_mesh, cell_mesh_2, buffer_cell,\
+		x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict)
 	
 	# --> run two way tracking 
 	closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, print_progress=print_progress)
+
+	print('Inside')
+	print(len(x_pos))
+	print(len(x_pos_new))
 	
-	return closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_mesh_2_new 
+	return closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure
 
 # --> main tracking function 
-def track_main_call(type,file_prefix_1, file_prefix_2, num_feat, num_nearest, buffer_cell, info):
-	folder = info.root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2 
-	# --> import files 
-	x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_mesh, cell_mesh_2 = \
-		import_data(file_prefix_1, file_prefix_2, info.root_directory)
-	
-	# --> create directory and copy files into it
-	if not os.path.exists(folder):
-		os.makedirs(folder)
+def track_main_call(type, beads_init, beads_final, cell_init, cell_final, num_feat, num_nearest, buffer_cell, print_progress):
+	x_pos = beads_init[:,0]
+	y_pos = beads_init[:,1]
+	z_pos = beads_init[:,2]
+
+	x_pos_new = beads_final[:,0]
+	y_pos_new = beads_final[:,1]
+	z_pos_new = beads_final[:,2]
 		
 	if type == 1:
 		# --> two way tracking
-		closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, print_progress=info.print_progress)
+		closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, print_progress=print_progress)
 	elif type == 2:
 		# --> track, correct, track 
-		closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_mesh_2 =\
-			track_correct_track(folder, num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, folder, cell_mesh, cell_mesh_2, buffer_cell, print_progress=info.print_progress)
-		save_corrected_cell(folder,cell_mesh_2)
-	# --> save tracking results in the proper directory 
-	label_uncorrected = False
-	save_res(folder, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict,label_uncorrected)
-	return closest_no_conflict
+		closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure =\
+			track_correct_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_init, cell_final, buffer_cell, print_progress=print_progress)
+
+	x_pos, y_pos, z_pos, U, V, W = get_corrected_beads(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict)
+	x_pos_new = x_pos + U
+	y_pos_new = y_pos + V
+	z_pos_new = z_pos + W
+	return closest_no_conflict, idx_ignored, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure
 
 # --> main tracking function, no cell, primary utility is for de-bugging and performance checks w/ synthetic data 
 def track_no_cell(type,file_prefix_1,file_prefix_2,num_feat,num_nearest, info):
@@ -449,11 +493,11 @@ def track_no_cell(type,file_prefix_1,file_prefix_2,num_feat,num_nearest, info):
 		cell_mesh_2 = np.zeros((2,3))
 		buffer_cell = 0 
 		# --> track, correct, track 
-		closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_mesh_2 =\
+		closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_mesh_2, figure =\
 			track_correct_track(folder, num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, folder, cell_mesh, cell_mesh_2, buffer_cell, print_progress=info.print_progress)
 		
 	# --> save tracking results in the proper directory 
 	label_uncorrected = False
 	save_res(folder, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict,label_uncorrected)
-	return closest_no_conflict
+	return closest_no_conflict, figure
 	

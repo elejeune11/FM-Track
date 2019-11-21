@@ -41,8 +41,6 @@ class FMTracker:
 		pickle.dump(self, open(filename,'wb'))
 
 	def run_tracking(self):
-		if self.print_progress:
-			print('Tracking:')
 		num_feat, num_nearest, buffer_cell, track_type  = self.get_tracking_params()
 		self.closest_no_conflict, self.idx_ignored, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_final_new, self.mars_figure = \
 			tracking.track_main_call(track_type,self.beads_init.points, self.beads_final.points, self.cell_init, self.cell_final, num_feat, num_nearest, buffer_cell, self.print_progress)

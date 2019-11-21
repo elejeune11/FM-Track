@@ -318,6 +318,10 @@ def plot_cell_vector_slice_row(ax_list,color_type,color_info,X,Y,Z,U,V,W,cell_ce
 
 # --> plot cells
 def plot_only_cells(filename,cell_init,cell_final,X_DIM,Y_DIM,Z_DIM,figtype_list):
+	parent = Path(filename).parent
+	if not os.path.isdir(parent):
+		os.mkdir(parent)
+
 	cell_mesh_1 = cell_init.points
 	cell_center_1 = cell_init.center
 	cell_vol_1 = cell_init.vol 
@@ -343,6 +347,10 @@ def plot_only_cells(filename,cell_init,cell_final,X_DIM,Y_DIM,Z_DIM,figtype_list
 
 # --> plot scores
 def plot_only_scores(filename,neigh_score,dir_score,figtype_list):
+	parent = Path(filename).parent
+	if not os.path.isdir(parent):
+		os.mkdir(parent)
+
 	fig = plt.figure()
 	plt.style.use(stylepath)
 	plt.rc('text', usetex=True)
@@ -367,6 +375,10 @@ def plot_only_scores(filename,neigh_score,dir_score,figtype_list):
 
 # --> plot slice
 def plot_only_slice(filename,dir_score,X,Y,Z,U,V,W,cell_init,cell_final,X_DIM,Y_DIM,Z_DIM,figtype_list):
+	parent = Path(filename).parent
+	if not os.path.isdir(parent):
+		os.mkdir(parent)
+
 	cell_center_1 = cell_init.center
 	cell_mesh_2 = cell_init.points
 	cell_center_2 = cell_final.center
@@ -400,6 +412,10 @@ def plot_only_slice(filename,dir_score,X,Y,Z,U,V,W,cell_init,cell_final,X_DIM,Y_
 
 # --> plot distance
 def plot_only_distance(filename,cell,dist_from_edge,dist_from_cell,mag_list,figtype_list):
+	parent = Path(filename).parent
+	if not os.path.isdir(parent):
+		os.mkdir(parent)
+
 	cell_mesh = cell.points
 
 	fig = plt.figure()
@@ -419,6 +435,10 @@ def plot_only_distance(filename,cell,dist_from_edge,dist_from_cell,mag_list,figt
 # --> plot all
 def plot_all(filename,dir_score,neigh_score,dist_from_edge,dist_from_cell,mag_list,\
 		X,Y,Z,U,V,W,cell_init,cell_final,X_DIM,Y_DIM,Z_DIM,figtype_list):
+	parent = Path(filename).parent
+	if not os.path.isdir(parent):
+		os.mkdir(parent)
+		
 	cell_center_1 = cell_init.center
 	cell_mesh_1 = cell_init.points
 	cell_vol_1 = cell_init.vol

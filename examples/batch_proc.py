@@ -4,8 +4,7 @@
 """
 
 # import necessary modules
-from fmtrack.inputinfo import InputInfo
-from fmtrack.run_tracking_all_steps import run_tracking_all_steps
+import fmtrack
 import numpy as np
 from glob import glob
 
@@ -45,6 +44,6 @@ root_directories = glob('/Users/<username>/Desktop/<parent-folder>/*')
 print(root_directories)
 
 for i in range(fov_dims.shape[0]):
-    info = InputInfo(root_directories[i])
+    info = fmtrack.InputInfo(root_directories[i])
     info.set_inputs(filenames_cell, filenames_beads, savefnames, tracking_pairs, fov_dims[i])
     info.run_tracking_all_steps(True,True,True)

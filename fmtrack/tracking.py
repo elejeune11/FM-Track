@@ -6,6 +6,7 @@ from pyearth import Earth
 import sys
 from tqdm import tqdm
 np.warnings.filterwarnings('ignore') # this suppresses a FutureWarning in the PyEarth package
+
 ##########################################################################################
 # import bead centers 
 ##########################################################################################
@@ -126,43 +127,35 @@ def save_corrected_cell(destination,cell_mesh):
 # --> finding a point's neighborhood 
 # every point in the initial config is compared to every point in the final config
 # distance matrix is #original (rows) x #final (columns)
-def get_dist_between_init_final_mat(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, should_print=False):
+def get_dist_between_init_final_mat(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, pbar=None):
 	num_orig = len(x_pos); num_final = len(x_pos_new)
 	dist_mat = np.zeros((num_orig, num_final))
-	if should_print:
-		loop = tqdm(range(0,num_orig), desc="Distance Between Initial/Final Mat")
-	else:
-		loop = range(0,num_orig)
-	for kk in loop:
+	for kk in range(0,num_orig):
 		x_pt = x_pos[kk]; y_pt = y_pos[kk]; z_pt = z_pos[kk] 
 		dist_vec = ((x_pt - x_pos_new)**2.0 + (y_pt - y_pos_new)**2.0 + (z_pt - z_pos_new)**2.0)**(0.5)
 		dist_mat[kk,:] = dist_vec
+		if pbar is not None:
+			pbar.update(1/num_orig)
 	return dist_mat
 
 # --> finding a point's neighborhood 
 #return the nearest pt in the final configuration to a given pt in the initial config
-def get_nearest_pts(num_nearest,dist_mat,should_print=False):
+def get_nearest_pts(num_nearest,dist_mat,pbar=None):
 	num_pts_orig = dist_mat.shape[0]
 	nearest_mat = np.zeros((num_pts_orig,num_nearest))
-	if should_print:
-		loop = tqdm(range(0,num_pts_orig), desc="Nearest Points")
-	else:
-		loop = range(0,num_pts_orig)
-	for kk in loop:
+	for kk in range(0,num_pts_orig):
 		args = np.argsort(dist_mat[kk,:])
 		for jj in range(0,num_nearest):
 			nearest_mat[kk,jj] = args[jj]
+		if pbar is not None:
+			pbar.update(1/num_pts_orig)
 	return nearest_mat 
 
 # --> get distance between points in the same configuration
-def get_dist_same_config(x_all,y_all,z_all,should_print=False):
+def get_dist_same_config(x_all,y_all,z_all,pbar=None):
 	num_pts = len(x_all)
 	dist_mat = np.zeros((num_pts,num_pts))
-	if should_print:
-		loop = tqdm(range(0,num_pts), desc="Dist Mat")
-	else:
-		loop = range(0,num_pts)
-	for kk in loop:
+	for kk in range(0,num_pts):
 		for jj in range(kk,num_pts):
 			if kk == jj:
 				dist_mat[kk,jj] = 9999
@@ -170,13 +163,15 @@ def get_dist_same_config(x_all,y_all,z_all,should_print=False):
 				dist = ((x_all[kk] - x_all[jj])**2.0 + (y_all[kk] - y_all[jj])**2.0 + (z_all[kk] - z_all[jj])**2.0)**0.5
 				dist_mat[kk,jj] = dist
 				dist_mat[jj,kk] = dist
+		if pbar is not None:
+			pbar.update(1/num_pts)
 	return dist_mat 
 	
 # --> computing feature vectors (3D array)
-def get_feature_vectors(x_all,y_all,z_all,num_feat,should_print=False):
+def get_feature_vectors(x_all,y_all,z_all,num_feat,pbar=None):
 	num_pts = len(x_all)
 	# --> get the distance between vector points 
-	dist_mat = get_dist_same_config(x_all,y_all,z_all,should_print)
+	dist_mat = get_dist_same_config(x_all,y_all,z_all,pbar=pbar)
 	# --> create the feature array
 	feat_array = np.zeros((num_pts,num_feat,3))
 	for kk in range(0,num_pts):
@@ -227,23 +222,20 @@ def get_score_info(feat_kk_orig,feat_array_fin,feat_idx_fin):
 	return idx_all, score_all 
 
 # --> comparing feature vectors
-def get_closest_features(feat_array_orig, feat_array_fin, nearest_mat, num_feat,num_nearest,should_print=False):	
+def get_closest_features(feat_array_orig, feat_array_fin, nearest_mat, num_feat,num_nearest,pbar=None):	
 	# --> get the matching scores 
 	num_pts = feat_array_orig.shape[0]  
 	matching_idx_sorted = np.zeros((num_pts,num_nearest))
 	matching_score_sorted = np.zeros((num_pts,num_nearest))
-	
-	if should_print:
-		loop = tqdm(range(0,num_pts), desc="Closest Feature Vectors")
-	else:
-		loop = range(0,num_pts)
 
-	for kk in loop:
+	for kk in range(0,num_pts):
 		feat_kk_orig = feat_array_orig[kk,:,:]
 		feat_idx_fin = nearest_mat[kk,:] 
 		idx_all, score_all = get_score_info(feat_kk_orig,feat_array_fin,feat_idx_fin)
 		matching_idx_sorted[kk,:] = idx_all
 		matching_score_sorted[kk,:] = score_all 
+		if pbar is not None:
+			pbar.update(1/num_pts)
 	
 	return matching_idx_sorted, matching_score_sorted
 
@@ -403,24 +395,24 @@ def translation_correction(cell_init, cell_final, buffer_cell,\
 # main tracking functions 
 ##########################################################################################
 # --> two way tracking 
-def two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, print_progress=False): # (coded to not re-compute distances when possible )
+def two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, pbar=None): # (coded to not re-compute distances when possible )
 	# --> get the distance between each point initial to final config set up 
-	dist_mat_i_to_f = get_dist_between_init_final_mat(x_pos,y_pos,z_pos,x_pos_new,y_pos_new,z_pos_new, should_print=print_progress) 
+	dist_mat_i_to_f = get_dist_between_init_final_mat(x_pos,y_pos,z_pos,x_pos_new,y_pos_new,z_pos_new, pbar=pbar) 
 	dist_mat_f_to_i = dist_mat_i_to_f.T 
 	
 	# --> get the feature vectors for both configurations
-	feat_array_i = get_feature_vectors(x_pos,y_pos,z_pos,num_feat, should_print=print_progress)
-	feat_array_f = get_feature_vectors(x_pos_new,y_pos_new,z_pos_new,num_feat, should_print=print_progress)
+	feat_array_i = get_feature_vectors(x_pos,y_pos,z_pos,num_feat, pbar=pbar)
+	feat_array_f = get_feature_vectors(x_pos_new,y_pos_new,z_pos_new,num_feat, pbar=pbar)
 	
 	# --> get the nearest matrices 
-	nearest_mat_i_to_f = get_nearest_pts(num_nearest,dist_mat_i_to_f, should_print=print_progress)
-	nearest_mat_f_to_i = get_nearest_pts(num_nearest,dist_mat_f_to_i, should_print=print_progress)
+	nearest_mat_i_to_f = get_nearest_pts(num_nearest,dist_mat_i_to_f, pbar=pbar)
+	nearest_mat_f_to_i = get_nearest_pts(num_nearest,dist_mat_f_to_i, pbar=pbar)
 	
 	# --> matching indicies and score forward
-	matching_idx_sorted_f, matching_score_sorted_f = get_closest_features(feat_array_i, feat_array_f, nearest_mat_i_to_f, num_feat, num_nearest, should_print=print_progress)
+	matching_idx_sorted_f, matching_score_sorted_f = get_closest_features(feat_array_i, feat_array_f, nearest_mat_i_to_f, num_feat, num_nearest, pbar=pbar)
 	
 	# --> matching indicies and score backward 
-	matching_idx_sorted_b, matching_score_sorted_b = get_closest_features(feat_array_f, feat_array_i, nearest_mat_f_to_i, num_feat, num_nearest, should_print=print_progress)
+	matching_idx_sorted_b, matching_score_sorted_b = get_closest_features(feat_array_f, feat_array_i, nearest_mat_f_to_i, num_feat, num_nearest, pbar=pbar)
 	
 	# --> forward run
 	closest_no_conflict_f = iterate_closest(matching_idx_sorted_f, matching_score_sorted_f, num_nearest)
@@ -435,24 +427,28 @@ def two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_n
 
 # --> two way tracking with translation correction (track, correct, track again)
 def track_correct_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_mesh, cell_mesh_2, buffer_cell, print_progress=False):
+	if print_progress:
+		pbar = tqdm(total=14, desc='Tracking', bar_format='{l_bar}{bar}|[{elapsed}<{remaining}, {rate_fmt}{postfix}]')
+	else:
+		pbar = None
+
 	# --> run two way tracking 
-	closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, print_progress=print_progress)
+	closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, pbar=pbar)
 	
 	# --> correct translation 	
 	x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure = translation_correction(cell_mesh, cell_mesh_2, buffer_cell,\
 		x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict)
 	
 	# --> run two way tracking 
-	closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, print_progress=print_progress)
+	closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, pbar=pbar)
 
-	print('Inside')
-	print(len(x_pos))
-	print(len(x_pos_new))
+	pbar.close()
 	
 	return closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure
 
 # --> main tracking function 
 def track_main_call(type, beads_init, beads_final, cell_init, cell_final, num_feat, num_nearest, buffer_cell, print_progress):
+
 	x_pos = beads_init[:,0]
 	y_pos = beads_init[:,1]
 	z_pos = beads_init[:,2]

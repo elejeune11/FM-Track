@@ -137,9 +137,9 @@ class FMPlot:
         arrows.save(Path(folder).joinpath(arrows_name).with_suffix('.vtk'))
 
     def save_native_plots(self,folder):
-        self.save_plot_summary(folder)
+        path = Path(folder).joinpath('Post_proc_summary')
+        self.save_plot_summary(path)
         path = Path(folder).joinpath('Cell_plots_3D')
-        print(folder)
         self.save_plot_only_cells(path)
         path = Path(folder).joinpath('Score_plots')
         self.save_plot_only_scores(path)

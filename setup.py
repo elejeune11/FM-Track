@@ -36,7 +36,8 @@ setup(name='fm-track',
           'scikit-image',
           'scikit-learn',
           'pyvista',
-          'tqdm'
+          'tqdm',
+          'meshio'
       ],
       setup_requires=['numpy'],
       include_package_data=True,

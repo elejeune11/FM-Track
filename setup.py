@@ -37,7 +37,8 @@ setup(name='fm-track',
           'scikit-learn',
           'pyvista',
           'tqdm',
-          'meshio'
+          'meshio',
+          'trimesh'
       ],
       setup_requires=['numpy'],
       include_package_data=True,

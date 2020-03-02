@@ -87,7 +87,7 @@ class FMTracker:
 		X = self.beads_init_new.points[:,0]
 		Y = self.beads_init_new.points[:,1]
 		Z = self.beads_init_new.points[:,2]
-		U = self.beads_final_new.points[:,0] - Xf
+		U = self.beads_final_new.points[:,0] - X
 		V = self.beads_final_new.points[:,1] - Y
 		W = self.beads_final_new.points[:,2] - Z
 

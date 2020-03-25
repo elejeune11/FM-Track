@@ -22,7 +22,7 @@ setup(name='fm-track',
       author_email='emma.lejeune.11@gmail.com',
       license='MIT',
       packages=['fmtrack'],
-      python_requires='>=3.0, <=3.6',
+      python_requires='>=3.0, <3.7',
       package_data={
         'fmtrack': ['data/*.tif'],
         'fmtrack': ['el_papers.mplstyle']

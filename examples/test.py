@@ -117,7 +117,7 @@ info.set_inputs(filenames_cell, filenames_beads, savefnames, tracking_pairs, fov
 #info.plot_type = 6.0
 #info.run_GP = False
 #info.use_corrected_cell = True
-#info.should_plot = True # toggles 3D plotting using PyVista
+#info.should_plot = False # toggles 3D plotting using PyVista
 #info.print_progress = True # toggles all printing in algorithm
 
 ##########################################################################################

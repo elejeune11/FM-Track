@@ -45,7 +45,7 @@ class InputInfo:
 		self.plot_type = 6.0
 		self.run_gp = False
 		self.use_corrected_cell = True
-		self.should_plot = True
+		self.should_plot = False
 		self.print_progress = True
 
 		self._has_been_constructed = False
@@ -173,6 +173,10 @@ class InputInfo:
 			plotter.figtype_list = self.figtype_list
 			foldername = os.path.join(self.root_directory,key)
 			plotter.save_native_plots(foldername)
+			if self.should_plot:
+				plotter.plot()
+			filename = os.path.join(foldername,'translation.png')
+			self.tracker_dict[key].save_mars_figure(filename)
 
 	def concat_root_to_string(self,path):
 		if self.root_directory is not None:

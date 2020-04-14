@@ -10,7 +10,43 @@ np.warnings.filterwarnings('ignore') # this suppresses a FutureWarning in the Py
 ##########################################################################################
 # import bead centers 
 ##########################################################################################
+
 def import_data(file_prefix_1, file_prefix_2, root_directory):
+	"""Imports cell and bead data saved using FM-Track's native file structure. Occurs after pre_processing
+	step has completed
+
+	Parameters
+	----------
+	file_prefix_1 : str
+		File prefix for the initial state
+	file_prefix_2 : str
+		File prefix for the final state
+	root_directory : str
+		Path to folder containing folder /Gel_cell_coords
+
+	Returns
+	----------
+	x_pos : np.array
+		1D NumPy array specifying x positions of beads in the initial configuration
+	y_pos : np.array
+		1D NumPy array specifying y positions of beads in the initial configuration
+	z_pos : np.array
+		1D NumPy array specifying z positions of beads in the initial configuration
+	x_pos_new : np.array
+		1D NumPy array specifying x positions of beads in the final configuration
+	y_pos_new : np.array
+		1D NumPy array specifying y positions of beads in the final configuration
+	z_pos_new : np.array
+		1D NumPy array specifying z positions of beads in the final configuration
+	cell_mesh : np.array
+		NumPy array of shape (num_vertices, 3) specifying the (x,y,z) coordinates of every
+		vertex in the initial cell boundary
+	cell_mesh_2 : np.array
+		NumPy array of shape (num_vertices, 3) specifying the (x,y,z) coordinates of every
+		vertex in the final cell boundary
+
+	"""
+
 	cell_mesh_fname1 = root_directory + '/Gel_cell_coords/' + file_prefix_1 + '_cell_mesh.txt'
 	cell_mesh_fname2 = root_directory + '/Gel_cell_coords/' + file_prefix_2 + '_cell_mesh.txt'
 	cell_mesh = np.loadtxt(cell_mesh_fname1)
@@ -34,6 +70,35 @@ def import_data(file_prefix_1, file_prefix_2, root_directory):
 	return x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_mesh, cell_mesh_2
 
 def import_data_no_cell(file_prefix_1,file_prefix_2, root_directory):
+	"""Imports bead data saved using FM-Track's native file structure. Occurs after pre_processing
+	step has completed. Only for trials without cell data
+
+	Parameters
+	----------
+	file_prefix_1 : str
+		File prefix for the initial state
+	file_prefix_2 : str
+		File prefix for the final state
+	root_directory : str
+		Path to folder containing folder /Gel_cell_coords
+
+	Returns
+	----------
+	x_pos : np.array
+		1D NumPy array specifying x positions of beads in the initial configuration
+	y_pos : np.array
+		1D NumPy array specifying y positions of beads in the initial configuration
+	z_pos : np.array
+		1D NumPy array specifying z positions of beads in the initial configuration
+	x_pos_new : np.array
+		1D NumPy array specifying x positions of beads in the final configuration
+	y_pos_new : np.array
+		1D NumPy array specifying y positions of beads in the final configuration
+	z_pos_new : np.array
+		1D NumPy array specifying z positions of beads in the final configuration
+
+	"""
+
 	beads_fname1 = root_directory + '/Gel_bead_center_coords/' + file_prefix_1 + '_beads.txt'
 	beads_fname2 = root_directory + '/Gel_bead_center_coords/' + file_prefix_2 + '_beads.txt'
 	data1 = np.loadtxt(beads_fname1)
@@ -55,7 +120,34 @@ def import_data_no_cell(file_prefix_1,file_prefix_2, root_directory):
 ##########################################################################################
 # save results   
 ##########################################################################################
+
 def save_res(destination, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict, label_uncorrected):
+	"""Saves bead positions in initial state along with displacements as text files
+
+	Parameters
+	----------
+	destination : str
+		Path to folder where data will be saved
+	x_pos : np.array
+		1D NumPy array specifying x positions of beads in the initial configuration
+	y_pos : np.array
+		1D NumPy array specifying y positions of beads in the initial configuration
+	z_pos : np.array
+		1D NumPy array specifying z positions of beads in the initial configuration
+	x_pos_new : np.array
+		1D NumPy array specifying x positions of beads in the final configuration
+	y_pos_new : np.array
+		1D NumPy array specifying y positions of beads in the final configuration
+	z_pos_new : np.array
+		1D NumPy array specifying z positions of beads in the final configuration
+	closest_new_conflict : np.array
+		Deprecated, unused variable, needs to be removed
+	label_uncorrected : bool
+		Determines whether bead displacements are labeled as uncorrected or not. Intended to refer to
+		whether tranlsation correction has occured
+
+	"""
+
 	if not os.path.exists(destination):
 		os.makedirs(destination)
 
@@ -78,6 +170,33 @@ def save_res(destination, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, 
 		np.savetxt(os.path.join(destination,'W.txt'),W)
 
 def load_res(destination,label_uncorrected):
+	"""Loads bead data saved using FM-Track's native file structure (specified in save_res)
+
+	Parameters
+	----------
+	destination : str
+		Path to folder where data will be saved
+	label_uncorrected : bool
+		Determines whether bead displacements are labeled as uncorrected or not. Intended to refer to
+		whether tranlsation correction has occured
+
+	Returns
+	----------
+	X : np.array
+		1D NumPy array specifying x positions of beads in the initial configuration
+	Y : np.array
+		1D NumPy array specifying y positions of beads in the initial configuration
+	Z : np.array
+		1D NumPy array specifying z positions of beads in the initial configuration
+	U : np.array
+		1D NumPy array specifying displacement along x-axis of beads
+	V : np.array
+		1D NumPy array specifying displacement along y-axis of beads
+	W : np.array
+		1D NumPy array specifying displacement along z-axis of beads
+
+	"""
+
 	X = np.loadtxt(os.path.join(destination,'X.txt'))
 	Y = np.loadtxt(os.path.join(destination,'Y.txt'))
 	Z = np.loadtxt(os.path.join(destination,'Z.txt'))
@@ -93,8 +212,40 @@ def load_res(destination,label_uncorrected):
 
 	return X, Y, Z, U, V, W
 
-
 def get_corrected_beads(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict):
+	"""Creates a FMBeads object from image data
+
+	#################
+	NEEDS DESCRIPTION
+	#################
+
+	Parameters
+	----------
+	x_pos : np.array
+		1D NumPy array specifying x positions of beads in the initial configuration
+	y_pos : np.array
+		1D NumPy array specifying y positions of beads in the initial configuration
+	z_pos : np.array
+		1D NumPy array specifying z positions of beads in the initial configuration
+	x_pos_new : np.array
+		1D NumPy array specifying x positions of beads in the final configuration
+	y_pos_new : np.array
+		1D NumPy array specifying y positions of beads in the final configuration
+	z_pos_new : np.array
+		1D NumPy array specifying z positions of beads in the final configuration
+	closest_no_conflict : np.array
+
+
+	Returns
+	----------
+	X
+	Y
+	Z
+	U
+	V
+	W
+
+	"""
 
 	X = []; Y = []; Z = []; U = []; V = []; W = [] 
 	num_pts = len(x_pos)
@@ -121,13 +272,42 @@ def get_corrected_beads(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cl
 def save_corrected_cell(destination,cell_mesh):
 	np.savetxt(os.path.join(destination,'cell_mesh_2_corrected.txt'),cell_mesh.points)
 	return 
+
 ##########################################################################################
 # helper functions  
 ##########################################################################################
-# --> finding a point's neighborhood 
-# every point in the initial config is compared to every point in the final config
-# distance matrix is #original (rows) x #final (columns)
+
 def get_dist_between_init_final_mat(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, pbar=None):
+	"""Calculates the distance matrix, which contains the values quantifying distance between every
+	point in the initial configuration and every point in the final configuration
+
+	Parameters
+	----------
+	x_pos : np.array
+		1D NumPy array specifying x positions of beads in the initial configuration
+	y_pos : np.array
+		1D NumPy array specifying y positions of beads in the initial configuration
+	z_pos : np.array
+		1D NumPy array specifying z positions of beads in the initial configuration
+	x_pos_new : np.array
+		1D NumPy array specifying x positions of beads in the final configuration
+	y_pos_new : np.array
+		1D NumPy array specifying y positions of beads in the final configuration
+	z_pos_new : np.array
+		1D NumPy array specifying z positions of beads in the final configuration
+	pbar : tqdm.tqdm, optional
+		Progress bar object. Primarily for internal use when all functions are strung together.
+		Recommended to not pass anything into this variable
+
+	Returns
+	----------
+	dist_mat : np.array
+		NumPy array of shape (num_orig, num_final) where each number is the number of beads
+		in the initial and final configurations. dist_mat[i,j] specifies magnitude of vector
+		pointing from point i in initial configuration to point j in final configuration.
+
+	"""
+
 	num_orig = len(x_pos); num_final = len(x_pos_new)
 	dist_mat = np.zeros((num_orig, num_final))
 	for kk in range(0,num_orig):
@@ -138,9 +318,31 @@ def get_dist_between_init_final_mat(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z
 			pbar.update(1/num_orig)
 	return dist_mat
 
-# --> finding a point's neighborhood 
-#return the nearest pt in the final configuration to a given pt in the initial config
 def get_nearest_pts(num_nearest,dist_mat,pbar=None):
+	"""Returns the indices of points in the final configuration considered to be "neighbors" to points in 
+	the initial configuration
+
+	Parameters
+	----------
+	num_nearest : int
+		The number of beads to consider neighbors
+	dist_mat : np.array
+		NumPy array of shape (num_orig, num_final) where each number is the number of beads
+		in the initial and final configurations. dist_mat[i,j] specifies magnitude of vector
+		pointing from point i in initial configuration to point j in final configuration.
+	pbar : tqdm.tqdm, optional
+		Progress bar object. Primarily for internal use when all functions are strung together.
+		Recommended to not pass anything into this variable
+
+	Returns
+	----------
+	nearest_mat : np.array
+		NumPy array of shape (num_points_orig, num_nearest). Each row corresponds to a specific
+		bead in the initial configuration. Each row contains the indices of the closest num_nearest 
+		beads in the final configuration
+
+	"""
+
 	num_pts_orig = dist_mat.shape[0]
 	nearest_mat = np.zeros((num_pts_orig,num_nearest))
 	for kk in range(0,num_pts_orig):
@@ -151,8 +353,29 @@ def get_nearest_pts(num_nearest,dist_mat,pbar=None):
 			pbar.update(1/num_pts_orig)
 	return nearest_mat 
 
-# --> get distance between points in the same configuration
 def get_dist_same_config(x_all,y_all,z_all,pbar=None):
+	"""Get distance between points in the same configuration
+
+	Parameters
+	----------
+	x_all : np.array
+		1D NumPy array specifying x positions of an arbitrary set of beads
+	y_all : np.array
+		1D NumPy array specifying x positions of an arbitrary set of beads
+	z_all : np.array
+		1D NumPy array specifying x positions of an arbitrary set of beads
+	pbar : tqdm.tqdm, optional
+		Progress bar object. Primarily for internal use when all functions are strung together.
+		Recommended to not pass anything into this variable
+
+	Returns
+	----------
+	dist_mat : np.array
+		NumPy array of shape (x_all.shape[0], x_all.shape[0]). dist_mat[i,j] specifies magnitude
+		of vector pointing from point i to point j.
+
+	"""
+
 	num_pts = len(x_all)
 	dist_mat = np.zeros((num_pts,num_pts))
 	for kk in range(0,num_pts):
@@ -167,8 +390,32 @@ def get_dist_same_config(x_all,y_all,z_all,pbar=None):
 			pbar.update(1/num_pts)
 	return dist_mat 
 	
-# --> computing feature vectors (3D array)
 def get_feature_vectors(x_all,y_all,z_all,num_feat,pbar=None):
+	"""Computes feature vector array
+
+	Parameters
+	----------
+	x_all : np.array
+		1D NumPy array specifying x positions of an arbitrary set of beads
+	y_all : np.array
+		1D NumPy array specifying x positions of an arbitrary set of beads
+	z_all : np.array
+		1D NumPy array specifying x positions of an arbitrary set of beads
+	num_feat : int
+		Number of feature vectors to compute per point
+	pbar : tqdm.tqdm, optional
+		Progress bar object. Primarily for internal use when all functions are strung together.
+		Recommended to not pass anything into this variable
+
+	Returns
+	----------
+	feat_array : np.array
+		NumPy array of shape (num_pts, num_feat, 3). Each plane (feat_array[i,:,:]) represents
+		a specific bead. Each row of this plane (feat_array[i,j,:]) represents a vector from 
+		that bead to a neighbor (a feature vector) with x, y, and z coordinates
+
+	"""
+
 	num_pts = len(x_all)
 	# --> get the distance between vector points 
 	dist_mat = get_dist_same_config(x_all,y_all,z_all,pbar=pbar)
@@ -184,8 +431,25 @@ def get_feature_vectors(x_all,y_all,z_all,num_feat,pbar=None):
 			feat_array[kk,jj,2] = z_all[args[jj]] - z_all[kk]
 	return feat_array 
 
-# --> compute score 
 def compute_score(feat_1,feat_2): #rows are each feature, 3 columns are x,y,z
+	"""Computes the score of two feature vector sets by comparing all permutations of the two
+
+	Parameters
+	----------
+	feat_1 : np.array
+		NumPy array of shape (num_feat, 3) specifying a set of feature vectors for a
+		particular bead
+	feat_2 : np.array
+		NumPy array of shape (num_feat, 3) specifying a set of feature vectors for a
+		particular bead
+
+	Returns
+	----------
+	best_score : float
+		The score of the two feature vector sets
+
+	"""
+
 	num_1 = feat_1.shape[0]; num_2 = feat_2.shape[0]
 	idx_1 = [kk for kk in range(0,num_1)]
 	idx_2 = [kk for kk in range(0,num_2)]
@@ -203,8 +467,32 @@ def compute_score(feat_1,feat_2): #rows are each feature, 3 columns are x,y,z
 	best_score = np.min(score_list)
 	return best_score
 
-# --> matching scores
 def get_score_info(feat_kk_orig,feat_array_fin,feat_idx_fin):
+	"""Matching scores
+
+	#################
+	NEEDS DESCRIPTION
+	#################
+
+	Parameters
+	----------
+	feat_kk_orig : np.array
+		Original beads feature array of shape (num_pts, num_feat, 3). Each plane (feat_array[i,:,:]) 
+		represents a specific bead. Each row of this plane (feat_array[i,j,:]) represents a vector from 
+		that bead to a neighbor (a feature vector) with x, y, and z coordinates
+	feat_array_fin : np.array
+		Final beads feature array
+	feat_idx_fin : np.array
+		1D NumPy array specifying the indices that order beads_final according to how they correlate with 
+		beads_initial
+
+	Returns
+	----------
+	idx_all : 
+	score_all
+
+	"""
+
 	num_nearest = feat_idx_fin.shape[0] 
 	vec = np.zeros((num_nearest))
 	for kk in range(0,num_nearest):
@@ -221,8 +509,29 @@ def get_score_info(feat_kk_orig,feat_array_fin,feat_idx_fin):
 		score_all[jj] = vec[idx_sort[jj]]
 	return idx_all, score_all 
 
-# --> comparing feature vectors
 def get_closest_features(feat_array_orig, feat_array_fin, nearest_mat, num_feat,num_nearest,pbar=None):	
+	"""Comparing feature vectors
+
+	#################
+	NEEDS DESCRIPTION
+	#################
+
+	Parameters
+	----------
+	feat_array_orig
+	feat_array_fin
+	nearest_mat
+	num_feat
+	num_nearest
+	pbar
+
+	Returns
+	----------
+	matching_idx_sorted
+	matching_score_sorted
+
+	"""
+
 	# --> get the matching scores 
 	num_pts = feat_array_orig.shape[0]  
 	matching_idx_sorted = np.zeros((num_pts,num_nearest))
@@ -239,9 +548,25 @@ def get_closest_features(feat_array_orig, feat_array_fin, nearest_mat, num_feat,
 	
 	return matching_idx_sorted, matching_score_sorted
 
-
-# --> iterate through  
 def iterate_closest(matching_idx_sorted, matching_score_sorted, num_nearest):
+	"""Iterate through  
+
+	#################
+	NEEDS DESCRIPTION
+	#################
+
+	Parameters
+	----------
+	matching_idx_sorted
+	matching_score_sorted
+	num_nearest
+
+	Returns
+	----------
+	closest_no_conflict
+
+	"""
+
 	closest = matching_idx_sorted[:,0]
 	num_beads = matching_idx_sorted.shape[0] 
 	idx_resolved = np.zeros((matching_idx_sorted.shape[0]))
@@ -270,9 +595,25 @@ def iterate_closest(matching_idx_sorted, matching_score_sorted, num_nearest):
 		closest = np.copy(closest_no_conflict) 
 	return closest_no_conflict 
 
-# --> check the results of running the tracking algorithm both backwards and forwards, 
-#			discard results that don't agree
-def check_backward_forward(closest_no_conflict_f,closest_no_conflict_b):	
+def check_backward_forward(closest_no_conflict_f,closest_no_conflict_b):
+	"""Check the results of running the tracking algorithm both backwards and forwards, discard results that don't agree
+
+	#################
+	NEEDS DESCRIPTION
+	#################
+
+	Parameters
+	----------
+	closest_no_conflict_f
+	closest_no_conflict_b
+
+	Returns
+	----------
+	closest_no_conflict
+	idx_ignored
+
+	"""
+
 	num_pts = len(closest_no_conflict_f)
 	idx_ignored = [] 
 	closest_no_conflict = [] 
@@ -289,11 +630,38 @@ def check_backward_forward(closest_no_conflict_f,closest_no_conflict_b):
 			idx_ignored.append(kk)
 	return closest_no_conflict, idx_ignored
 
-# --> sometimes, microscope translation and/or gel swelling can lead to translation
-# --> this function will correct for this translation and then re-run the tracking algorithm
-# --> this only deals with corrections with respect to the z direction 
 def translation_correction(cell_init, cell_final, buffer_cell,\
 	x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict):
+	"""Sometimes, microscope translation and/or gel swelling can lead to translation
+	This function will correct for this translation and then re-run the tracking algorithm
+	This only deals with corrections with respect to the z direction 
+
+	#################
+	NEEDS DESCRIPTION
+	#################
+
+	Parameters
+	----------
+	cell_init
+	cell_final
+	buffer_cell
+	x_pos
+	y_pos
+	z_pos
+	x_pos_new
+	y_pos_new
+	z_pos_new
+	closest_no_conflict
+
+	Returns
+	----------
+	x_pos_new
+	y_pos_new
+	z_pos_new
+	cell_final_new
+	fig
+
+	"""
 
 	points_init = cell_init.points
 	points_final = cell_final.points
@@ -394,8 +762,33 @@ def translation_correction(cell_init, cell_final, buffer_cell,\
 ##########################################################################################
 # main tracking functions 
 ##########################################################################################
-# --> two way tracking 
+
 def two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, pbar=None): # (coded to not re-compute distances when possible )
+	"""Two way tracking 
+
+	#################
+	NEEDS DESCRIPTION
+	#################
+
+	Parameters
+	----------
+	num_feat
+	num_nearest
+	x_pos
+	y_pos
+	z_pos
+	x_pos_new
+	y_pos_new
+	z_pos_new
+	pbar
+
+	Returns
+	----------
+	closest_no_conflict
+	idx_ignored
+
+	"""
+
 	# --> get the distance between each point initial to final config set up 
 	dist_mat_i_to_f = get_dist_between_init_final_mat(x_pos,y_pos,z_pos,x_pos_new,y_pos_new,z_pos_new, pbar=pbar) 
 	dist_mat_f_to_i = dist_mat_i_to_f.T 
@@ -425,8 +818,40 @@ def two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_n
 	
 	return closest_no_conflict, idx_ignored
 
-# --> two way tracking with translation correction (track, correct, track again)
 def track_correct_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_mesh, cell_mesh_2, buffer_cell, print_progress=False):
+	"""Two way tracking with translation correction (track, correct, track again)
+
+	#################
+	NEEDS DESCRIPTION
+	#################
+
+	Parameters
+	----------
+	num_feat
+	num_nearest
+	x_pos
+	y_pos
+	z_pos
+	x_pos_new
+	y_pos_new
+	z_pos_new
+	cell_mesh
+	cell_mesh_2
+	buffer_cell
+	print_progress
+
+	Returns
+	----------
+	closest_no_conflict
+	idx_ignored
+	x_pos_new
+	y_pos_new
+	z_pos_new
+	cell_final_new
+	figure
+
+	"""
+
 	if print_progress:
 		pbar = tqdm(total=14, desc='Tracking', bar_format='{l_bar}{bar}|[{elapsed}<{remaining}, {rate_fmt}{postfix}]')
 	else:
@@ -446,8 +871,39 @@ def track_correct_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y
 	
 	return closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure
 
-# --> main tracking function 
 def track_main_call(type, beads_init, beads_final, cell_init, cell_final, num_feat, num_nearest, buffer_cell, print_progress):
+	"""Main tracking function 
+
+	#################
+	NEEDS DESCRIPTION
+	#################
+
+	Parameters
+	----------
+	type
+	beads_init
+	beads_final
+	cell_init
+	cell_final
+	num_feat
+	num_nearest
+	buffer_cell
+	print_progress
+
+	Returns
+	----------
+	closest_no_conflict
+	idx_ignored
+	x_pos
+	y_pos
+	z_pos
+	x_pos_new
+	y_pos_new
+	z_pos_new
+	cell_final_new
+	figure
+
+	"""
 
 	x_pos = beads_init[:,0]
 	y_pos = beads_init[:,1]
@@ -471,8 +927,29 @@ def track_main_call(type, beads_init, beads_final, cell_init, cell_final, num_fe
 	z_pos_new = z_pos + W
 	return closest_no_conflict, idx_ignored, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure
 
-# --> main tracking function, no cell, primary utility is for de-bugging and performance checks w/ synthetic data 
 def track_no_cell(type,file_prefix_1,file_prefix_2,num_feat,num_nearest, info):
+	"""Main tracking function, no cell, primary utility is for de-bugging and performance checks w/ synthetic data 
+
+	#################
+	NEEDS DESCRIPTION
+	#################
+
+	Parameters
+	----------
+	type
+	file_prefix_1
+	file_prefix_2
+	num_feat
+	num_nearest
+	info
+
+	Returns
+	----------
+	closest_no_conflict
+	figure
+
+	"""
+
 	folder = info.root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2 
 	x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new = import_data_no_cell(file_prefix_1,file_prefix_2,info.root_directory)
 	

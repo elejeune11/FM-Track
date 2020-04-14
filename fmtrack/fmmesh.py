@@ -14,7 +14,7 @@ class FMMesh:
 
     def import_msh_file(self,filename):
         mesh = meshio.read(filename)
-        mesh = trimesh.Trimesh(mesh.points, mesh.cells['triangle'])
+        mesh = trimesh.Trimesh(mesh.points, mesh.get_cells_type('triangle'))
         self.points = np.asarray(mesh.vertices)
         self.faces = np.asarray(mesh.faces)
         self.center = mesh.center_mass

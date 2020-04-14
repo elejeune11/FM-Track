@@ -38,7 +38,8 @@ setup(name='fm-track',
           'pyvista',
           'tqdm',
           'meshio',
-          'trimesh'
+          'trimesh',
+          'latex'
       ],
       setup_requires=['numpy'],
       include_package_data=True,

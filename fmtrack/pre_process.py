@@ -1,6 +1,3 @@
-##########################################################################################
-# import packages
-##########################################################################################
 import glob
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,10 +6,28 @@ from skimage.filters import threshold_otsu
 from skimage.measure import label, regionprops, marching_cubes_lewiner   
 import pyvista
 from . import fmmesh
-##########################################################################################
-# function to read tiff files 
-##########################################################################################
+
 def tif_reader(path,input_file,color_idx):
+	"""Intakes .tif files and returns strength of particular color across all voxels
+
+	Parameters
+	----------
+	path : str
+		Path of folder containing .tif images
+	input_file : str
+		String containing the filename format
+		Example : 'Gel 2 CytoD%s.tif'
+	color_idx : int
+		The color to examine (0=red, 1=green, 2=blue)
+
+	Returns 
+	----------
+	all_array : numpy.ndarray
+		A NumPy array of shape (size_x,size_y,num_images) specifying the strength 
+		of color_idx across the set of images
+
+	"""
+
 	fnames = glob.glob(path + '/*.tif')
 	num_images = len(fnames)
 	sample_img = plt.imread(input_file%('0000'))
@@ -34,14 +49,33 @@ def tif_reader(path,input_file,color_idx):
 	
 	return all_array 
 
-##########################################################################################
-# functions to pre-process cell images
-#	OUTPUTS:
-#		- marching cubes cell surface mesh
-#		- volume per cell 
-#		- cell center 
-##########################################################################################
 def get_cell_surface(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_threshold):
+	"""Creates an FMMesh object from image data
+
+	Parameters
+	----------
+	path : str
+		Path of folder containing .tif images
+	input_file : str
+		String containing the filename format
+		Example : 'Gel 2 CytoD%s.tif'
+	color_idx : int
+		The color to examine (0=red, 1=green, 2=blue)
+	X_DIM : float
+		Total length of microscope imagery along the x dimension
+	Y_DIM : float
+		Total length of microscope imagery along the x dimension
+	Z_DIM : float
+		Total length of microscope imagery along the x dimension
+	cell_threshold : float
+		Minimum voxel color intensity for consideration as part of the cell
+
+	Returns 
+	----------
+	mesh : FMMesh
+		An FMMesh object specifying the cell surface created from the image files
+
+	"""
 
 	mesh = fmmesh.FMMesh()
 
@@ -102,6 +136,31 @@ def get_cell_surface(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_thresh
 #		- x, y, z position of each bead based on the input images 
 ##########################################################################################
 def get_bead_centers(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM):
+	"""Creates a FMBeads object from image data
+
+	Parameters
+	----------
+	path : str
+		Path of folder containing .tif images
+	input_file : str
+		String containing the filename format
+		Example : input_file='Gel 2 CytoD%s.tif'
+	color_idx : 
+		The color to examine (0=red, 1=green, 2=blue)
+	X_DIM : float
+		Total length of microscope imagery along the x dimension
+	Y_DIM : float
+		Total length of microscope imagery along the x dimension
+	Z_DIM : float
+		Total length of microscope imagery along the x dimension
+
+	Returns 
+	----------
+	beads : FMBeads
+		An FMBeads object with bead positions corresponding to those calculated from imagery data
+
+    """
+
 	# import the image file and apply a gaussian filter 
 	all_array = tif_reader(path,input_file,color_idx)
 	all_array = ndimage.gaussian_filter(all_array,1)
@@ -128,6 +187,7 @@ def get_bead_centers(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM):
 	centroids_order[:,1] = centroids[:,0] * Y_DIM / bw.shape[0]
 	centroids_order[:,2] = centroids[:,2] * Z_DIM / bw.shape[2] 
 
-	#np.savetxt(save_file,centroids_order)
-	return centroids_order
+	beads = fmbeads.FMBeads(points=centroids_order)
+
+	return beads
 

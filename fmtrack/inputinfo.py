@@ -101,9 +101,9 @@ class InputInfo:
 		X_DIM, Y_DIM, Z_DIM = self.get_FOV_dims()
 
 		for kk in range(0,len(filenames_beads)):
-			self.beads_dict[self.savefnames[kk]].get_bead_centers(dirnames_beads[kk],filenames_beads[kk],self.bead_channel, X_DIM, Y_DIM, Z_DIM)
+			self.beads_dict[self.savefnames[kk]].get_bead_centers(filenames_beads[kk],self.bead_channel, X_DIM, Y_DIM, Z_DIM)
 			self.beads_dict[self.savefnames[kk]].save_as_txt(savefnames_beads[kk])
-			self.mesh_dict[self.savefnames[kk]].get_cell_surface(dirnames_cell[kk],filenames_cell[kk],self.cell_channel, X_DIM, Y_DIM, Z_DIM, self.cell_thresh)
+			self.mesh_dict[self.savefnames[kk]].get_cell_surface(filenames_cell[kk],self.cell_channel, X_DIM, Y_DIM, Z_DIM, self.cell_thresh)
 			self.mesh_dict[self.savefnames[kk]].save_native_files(savefnames_cell[kk])
 
 	def load_pre_processed_data(self):

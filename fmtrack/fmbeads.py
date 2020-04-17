@@ -16,13 +16,11 @@ class FMBeads:
     def load_from_txt(self,filename):
         self.points = np.loadtxt(filename)
 
-    def get_bead_centers(self, dirnames_beads,filenames_beads,bead_channel, X_DIM, Y_DIM, Z_DIM):
+    def get_bead_centers(self, filenames_beads,bead_channel, X_DIM, Y_DIM, Z_DIM):
         """Creates a FMBeads object from image data
 
         Parameters
         ----------
-        dirnames_beads : str, optional
-            The sound the animal makes (default is None)
         filenames_beads : str
         bead_channel : str
         X_DIM : float
@@ -34,5 +32,5 @@ class FMBeads:
 
         """
 
-        beads = pre_process.get_bead_centers(dirnames_beads,filenames_beads,bead_channel, X_DIM, Y_DIM, Z_DIM)
+        beads = pre_process.get_bead_centers(filenames_beads,bead_channel, X_DIM, Y_DIM, Z_DIM)
         self.points = beads.points

@@ -6,17 +6,17 @@ from skimage.filters import threshold_otsu
 from skimage.measure import label, regionprops, marching_cubes_lewiner   
 import pyvista
 from . import fmmesh
+from . import fmbeads
+import pathlib
 
-def tif_reader(path,input_file,color_idx):
+def tif_reader(input_file,color_idx):
 	"""Intakes .tif files and returns strength of particular color across all voxels
 
 	Parameters
 	----------
-	path : str
-		Path of folder containing .tif images
 	input_file : str
-		String containing the filename format
-		Example : 'Gel 2 CytoD%s.tif'
+		String containing the path and filename format
+		Example : './CytoD/Cell/Gel 2 CytoD%s.tif'
 	color_idx : int
 		The color to examine (0=red, 1=green, 2=blue)
 
@@ -28,7 +28,8 @@ def tif_reader(path,input_file,color_idx):
 
 	"""
 
-	fnames = glob.glob(path + '/*.tif')
+	parent_folder = str(pathlib.Path(input_file).parent)
+	fnames = glob.glob(parent_folder + '/*.tif')
 	num_images = len(fnames)
 	sample_img = plt.imread(input_file%('0000'))
 	size_x = sample_img.shape[0]
@@ -49,16 +50,14 @@ def tif_reader(path,input_file,color_idx):
 	
 	return all_array 
 
-def get_cell_surface(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_threshold):
+def get_cell_surface(input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_threshold):
 	"""Creates an FMMesh object from image data
 
 	Parameters
 	----------
-	path : str
-		Path of folder containing .tif images
 	input_file : str
-		String containing the filename format
-		Example : 'Gel 2 CytoD%s.tif'
+		String containing the path and filename format
+		Example : './CytoD/Cell/Gel 2 CytoD%s.tif'
 	color_idx : int
 		The color to examine (0=red, 1=green, 2=blue)
 	X_DIM : float
@@ -80,7 +79,7 @@ def get_cell_surface(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_thresh
 	mesh = fmmesh.FMMesh()
 
 	# import the image file and apply a gaussian filter 
-	all_array = tif_reader(path,input_file,color_idx)
+	all_array = tif_reader(input_file,color_idx)
 	all_array = ndimage.gaussian_filter(all_array,2)
 	
 	# threshold the image based on a set threshold
@@ -135,16 +134,14 @@ def get_cell_surface(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_thresh
 #	OUTPUTS:
 #		- x, y, z position of each bead based on the input images 
 ##########################################################################################
-def get_bead_centers(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM):
+def get_bead_centers(input_file,color_idx, X_DIM, Y_DIM, Z_DIM):
 	"""Creates a FMBeads object from image data
 
 	Parameters
 	----------
-	path : str
-		Path of folder containing .tif images
 	input_file : str
 		String containing the filename format
-		Example : input_file='Gel 2 CytoD%s.tif'
+		Example : input_file='./CytoD/Beads/Gel 2 CytoD%s.tif'
 	color_idx : 
 		The color to examine (0=red, 1=green, 2=blue)
 	X_DIM : float
@@ -162,7 +159,7 @@ def get_bead_centers(path,input_file,color_idx, X_DIM, Y_DIM, Z_DIM):
     """
 
 	# import the image file and apply a gaussian filter 
-	all_array = tif_reader(path,input_file,color_idx)
+	all_array = tif_reader(input_file,color_idx)
 	all_array = ndimage.gaussian_filter(all_array,1)
 	
 	# apply an otsu filter, specify the filter at each z slice 

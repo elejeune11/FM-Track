@@ -1,6 +1,6 @@
 # FM-Track
 
-<img src="https://github.com/elejeune11/FM-Track/blob/master/examples/sampleimage.png" width="400" height="400" align="right">
+<img src="https://github.com/elejeune11/FM-Track/blob/master/misc/sampleimage.png" width="400" height="400" align="right">
 
 FM-Track is a feature-based fiducial marker tracking software for applications in cell mechanics.
 

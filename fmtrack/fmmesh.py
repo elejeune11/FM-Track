@@ -42,8 +42,8 @@ class FMMesh:
         else:
             raise Exception('FMMesh.faces must be defined before calculating normals')
 
-    def get_cell_surface(self, dirnames_cell,filenames_cell,cell_channel, X_DIM, Y_DIM, Z_DIM, cell_threshold):
-        mesh = pre_process.get_cell_surface(dirnames_cell,filenames_cell,cell_channel, X_DIM, Y_DIM, Z_DIM, cell_threshold)
+    def get_cell_surface(self, filenames_cell,cell_channel, X_DIM, Y_DIM, Z_DIM, cell_threshold):
+        mesh = pre_process.get_cell_surface(filenames_cell,cell_channel, X_DIM, Y_DIM, Z_DIM, cell_threshold)
         self.points = mesh.points
         self.faces = mesh.faces
         self.normals = mesh.normals

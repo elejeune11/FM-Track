@@ -5,6 +5,7 @@ import os
 from pyearth import Earth
 import sys
 from tqdm import tqdm
+import fmtrack
 np.warnings.filterwarnings('ignore') # this suppresses a FutureWarning in the PyEarth package
 
 ##########################################################################################
@@ -121,32 +122,25 @@ def import_data_no_cell(file_prefix_1,file_prefix_2, root_directory):
 # save results   
 ##########################################################################################
 
-def save_res(destination, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict, label_uncorrected):
+def save_res(destination, beads_init, beads_final, label_uncorrected):
 	"""Saves bead positions in initial state along with displacements as text files
 
 	Parameters
 	----------
 	destination : str
 		Path to folder where data will be saved
-	x_pos : np.array
-		1D NumPy array specifying x positions of beads in the initial configuration
-	y_pos : np.array
-		1D NumPy array specifying y positions of beads in the initial configuration
-	z_pos : np.array
-		1D NumPy array specifying z positions of beads in the initial configuration
-	x_pos_new : np.array
-		1D NumPy array specifying x positions of beads in the final configuration
-	y_pos_new : np.array
-		1D NumPy array specifying y positions of beads in the final configuration
-	z_pos_new : np.array
-		1D NumPy array specifying z positions of beads in the final configuration
-	closest_new_conflict : np.array
-		Deprecated, unused variable, needs to be removed
+	beads_init : FMBeads
+		Beads in the initial position
+	beads_final : FMBeads
+		Beads in the final position
 	label_uncorrected : bool
 		Determines whether bead displacements are labeled as uncorrected or not. Intended to refer to
 		whether tranlsation correction has occured
 
 	"""
+
+	x_pos, y_pos, z_pos = beads_init.get_xyz()
+	x_pos_new, y_pos_new, z_pos_new = beads_final.get_xyz()
 
 	if not os.path.exists(destination):
 		os.makedirs(destination)
@@ -182,21 +176,13 @@ def load_res(destination,label_uncorrected):
 
 	Returns
 	----------
-	X : np.array
-		1D NumPy array specifying x positions of beads in the initial configuration
-	Y : np.array
-		1D NumPy array specifying y positions of beads in the initial configuration
-	Z : np.array
-		1D NumPy array specifying z positions of beads in the initial configuration
-	U : np.array
-		1D NumPy array specifying displacement along x-axis of beads
-	V : np.array
-		1D NumPy array specifying displacement along y-axis of beads
-	W : np.array
-		1D NumPy array specifying displacement along z-axis of beads
+	beads_init : FMBeads
+		Beads in the initial position
+	beads_final : FMBeads
+		Beads in the final position
 
 	"""
-
+	
 	X = np.loadtxt(os.path.join(destination,'X.txt'))
 	Y = np.loadtxt(os.path.join(destination,'Y.txt'))
 	Z = np.loadtxt(os.path.join(destination,'Z.txt'))
@@ -210,9 +196,15 @@ def load_res(destination,label_uncorrected):
 		V = np.loadtxt(os.path.join(destination,'V.txt'))
 		W = np.loadtxt(os.path.join(destination,'W.txt'))
 
-	return X, Y, Z, U, V, W
+	beads_init_new = fmbeads.FMBeads()
+	beads_final_new = fmbeads.FMBeads()
 
-def get_corrected_beads(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict):
+	beads_init_new.load_from_positions(X,Y,Z)
+	beads_final_new.load_from_positions(X+U,Y+V,Z+W)
+
+	return beads_init_new, beads_final_new
+
+def get_corrected_beads(beads_init, beads_final, closest_no_conflict):
 	"""Creates a FMBeads object from image data
 
 	#################
@@ -247,27 +239,35 @@ def get_corrected_beads(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cl
 
 	"""
 
-	X = []; Y = []; Z = []; U = []; V = []; W = [] 
+	x_pos, y_pos, z_pos = beads_init.get_xyz()
+	x_pos_new, y_pos_new, z_pos_new = beads_final.get_xyz()
+
+	X_init = []; Y_init = []; Z_init = []; X_final = []; Y_final = []; Z_final = [] 
 	num_pts = len(x_pos)
 	for kk in range(0,num_pts):
 		idx = closest_no_conflict[kk]
 		if idx <= num_pts:
-			X.append(x_pos[kk])
-			Y.append(y_pos[kk])
-			Z.append(z_pos[kk])
+			X_init.append(x_pos[kk])
+			Y_init.append(y_pos[kk])
+			Z_init.append(z_pos[kk])
 
-			U.append(x_pos_new[idx] - x_pos[kk])
-			V.append(y_pos_new[idx] - y_pos[kk])
-			W.append(z_pos_new[idx] - z_pos[kk])
+			X_final.append(x_pos_new[idx])
+			Y_final.append(y_pos_new[idx])
+			Z_final.append(z_pos_new[idx])
 
-	X = np.asarray(X)
-	Y = np.asarray(Y)
-	Z = np.asarray(Z)
-	U = np.asarray(U)
-	V = np.asarray(V)
-	W = np.asarray(W)
+	X_init = np.asarray(X_init)
+	Y_init = np.asarray(Y_init)
+	Z_init = np.asarray(Z_init)
+	X_final = np.asarray(X_final)
+	Y_final = np.asarray(Y_final)
+	Z_final = np.asarray(Z_final)
 
-	return X, Y, Z, U, V, W
+	beads_init_new = fmtrack.FMBeads()
+	beads_init_new.load_from_positions(X_init, Y_init, Z_init)
+	beads_final_new = fmtrack.FMBeads()
+	beads_final_new.load_from_positions(X_final, Y_final, Z_final)
+
+	return beads_init_new, beads_final_new
 
 def save_corrected_cell(destination,cell_mesh):
 	np.savetxt(os.path.join(destination,'cell_mesh_2_corrected.txt'),cell_mesh.points)
@@ -429,6 +429,8 @@ def get_feature_vectors(x_all,y_all,z_all,num_feat,pbar=None):
 			feat_array[kk,jj,0] = x_all[args[jj]] - x_all[kk]
 			feat_array[kk,jj,1] = y_all[args[jj]] - y_all[kk]
 			feat_array[kk,jj,2] = z_all[args[jj]] - z_all[kk]
+		if pbar is not None:
+			pbar.update(1/num_pts)
 	return feat_array 
 
 def compute_score(feat_1,feat_2): #rows are each feature, 3 columns are x,y,z
@@ -548,7 +550,7 @@ def get_closest_features(feat_array_orig, feat_array_fin, nearest_mat, num_feat,
 	
 	return matching_idx_sorted, matching_score_sorted
 
-def iterate_closest(matching_idx_sorted, matching_score_sorted, num_nearest):
+def iterate_closest(matching_idx_sorted, matching_score_sorted, num_nearest, pbar=None):
 	"""Iterate through  
 
 	#################
@@ -592,6 +594,8 @@ def iterate_closest(matching_idx_sorted, matching_score_sorted, num_nearest):
 					idx_resolved[vals[args[zz]]] = idx_resolved[vals[args[zz]]] + 1 
 			elif vals.shape[0] == 1:
 				closest_no_conflict[int(vals[0])] = kk 
+			if pbar is not None:
+				pbar.update(1/(num_nearest-1)/num_beads)
 		closest = np.copy(closest_no_conflict) 
 	return closest_no_conflict 
 
@@ -629,6 +633,7 @@ def check_backward_forward(closest_no_conflict_f,closest_no_conflict_b):
 			closest_no_conflict.append(99999999)
 			idx_ignored.append(kk)
 	return closest_no_conflict, idx_ignored
+
 
 def translation_correction(cell_init, cell_final, buffer_cell,\
 	x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict):
@@ -763,7 +768,7 @@ def translation_correction(cell_init, cell_final, buffer_cell,\
 # main tracking functions 
 ##########################################################################################
 
-def two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, pbar=None): # (coded to not re-compute distances when possible )
+def two_way_track(num_feat, num_nearest, beads_init, beads_final, pbar=None): # (coded to not re-compute distances when possible )
 	"""Two way tracking 
 
 	#################
@@ -789,6 +794,9 @@ def two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_n
 
 	"""
 
+	x_pos, y_pos, z_pos = beads_init.get_xyz()
+	x_pos_new, y_pos_new, z_pos_new = beads_final.get_xyz()
+
 	# --> get the distance between each point initial to final config set up 
 	dist_mat_i_to_f = get_dist_between_init_final_mat(x_pos,y_pos,z_pos,x_pos_new,y_pos_new,z_pos_new, pbar=pbar) 
 	dist_mat_f_to_i = dist_mat_i_to_f.T 
@@ -806,171 +814,18 @@ def two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_n
 	
 	# --> matching indicies and score backward 
 	matching_idx_sorted_b, matching_score_sorted_b = get_closest_features(feat_array_f, feat_array_i, nearest_mat_f_to_i, num_feat, num_nearest, pbar=pbar)
-	
+
 	# --> forward run
-	closest_no_conflict_f = iterate_closest(matching_idx_sorted_f, matching_score_sorted_f, num_nearest)
+	closest_no_conflict_f = iterate_closest(matching_idx_sorted_f, matching_score_sorted_f, num_nearest, pbar=pbar)
 	
 	# --> backward run
-	closest_no_conflict_b = iterate_closest(matching_idx_sorted_b, matching_score_sorted_b, num_nearest)
+	closest_no_conflict_b = iterate_closest(matching_idx_sorted_b, matching_score_sorted_b, num_nearest, pbar=pbar)
+
+	if pbar is not None:
+		#pbar.refresh()
+		pbar.close()
 	
 	# --> return matched
 	closest_no_conflict, idx_ignored = check_backward_forward(closest_no_conflict_f,closest_no_conflict_b)
 	
 	return closest_no_conflict, idx_ignored
-
-def track_correct_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_mesh, cell_mesh_2, buffer_cell, print_progress=False):
-	"""Two way tracking with translation correction (track, correct, track again)
-
-	#################
-	NEEDS DESCRIPTION
-	#################
-
-	Parameters
-	----------
-	num_feat
-	num_nearest
-	x_pos
-	y_pos
-	z_pos
-	x_pos_new
-	y_pos_new
-	z_pos_new
-	cell_mesh
-	cell_mesh_2
-	buffer_cell
-	print_progress
-
-	Returns
-	----------
-	closest_no_conflict
-	idx_ignored
-	x_pos_new
-	y_pos_new
-	z_pos_new
-	cell_final_new
-	figure
-
-	"""
-
-	if print_progress:
-		pbar = tqdm(total=14, desc='Tracking', bar_format='{l_bar}{bar}|[{elapsed}<{remaining}, {rate_fmt}{postfix}]')
-	else:
-		pbar = None
-
-	# --> run two way tracking 
-	closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, pbar=pbar)
-	
-	# --> correct translation 	
-	x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure = translation_correction(cell_mesh, cell_mesh_2, buffer_cell,\
-		x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict)
-	
-	# --> run two way tracking 
-	closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, pbar=pbar)
-
-	pbar.close()
-	
-	return closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure
-
-def track_main_call(type, beads_init, beads_final, cell_init, cell_final, num_feat, num_nearest, buffer_cell, print_progress):
-	"""Main tracking function 
-
-	#################
-	NEEDS DESCRIPTION
-	#################
-
-	Parameters
-	----------
-	type
-	beads_init
-	beads_final
-	cell_init
-	cell_final
-	num_feat
-	num_nearest
-	buffer_cell
-	print_progress
-
-	Returns
-	----------
-	closest_no_conflict
-	idx_ignored
-	x_pos
-	y_pos
-	z_pos
-	x_pos_new
-	y_pos_new
-	z_pos_new
-	cell_final_new
-	figure
-
-	"""
-
-	x_pos = beads_init[:,0]
-	y_pos = beads_init[:,1]
-	z_pos = beads_init[:,2]
-
-	x_pos_new = beads_final[:,0]
-	y_pos_new = beads_final[:,1]
-	z_pos_new = beads_final[:,2]
-		
-	if type == 1:
-		# --> two way tracking
-		closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, print_progress=print_progress)
-	elif type == 2:
-		# --> track, correct, track 
-		closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure =\
-			track_correct_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_init, cell_final, buffer_cell, print_progress=print_progress)
-
-	x_pos, y_pos, z_pos, U, V, W = get_corrected_beads(x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict)
-	x_pos_new = x_pos + U
-	y_pos_new = y_pos + V
-	z_pos_new = z_pos + W
-	return closest_no_conflict, idx_ignored, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_final_new, figure
-
-def track_no_cell(type,file_prefix_1,file_prefix_2,num_feat,num_nearest, info):
-	"""Main tracking function, no cell, primary utility is for de-bugging and performance checks w/ synthetic data 
-
-	#################
-	NEEDS DESCRIPTION
-	#################
-
-	Parameters
-	----------
-	type
-	file_prefix_1
-	file_prefix_2
-	num_feat
-	num_nearest
-	info
-
-	Returns
-	----------
-	closest_no_conflict
-	figure
-
-	"""
-
-	folder = info.root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2 
-	x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new = import_data_no_cell(file_prefix_1,file_prefix_2,info.root_directory)
-	
-	# --> create directory and copy files into it
-	if not os.path.exists(folder):
-		os.makedirs(folder)
-	
-	if type == 1:
-		# --> two way tracking
-		closest_no_conflict, idx_ignored = two_way_track(num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, print_progress=info.print_progress)
-	elif type == 2:
-		# --> dummy cell mesh
-		cell_mesh = np.zeros((2,3))
-		cell_mesh_2 = np.zeros((2,3))
-		buffer_cell = 0 
-		# --> track, correct, track 
-		closest_no_conflict, idx_ignored, x_pos_new, y_pos_new, z_pos_new, cell_mesh_2, figure =\
-			track_correct_track(folder, num_feat, num_nearest, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, folder, cell_mesh, cell_mesh_2, buffer_cell, print_progress=info.print_progress)
-		
-	# --> save tracking results in the proper directory 
-	label_uncorrected = False
-	save_res(folder, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, closest_no_conflict,label_uncorrected)
-	return closest_no_conflict, figure
-	

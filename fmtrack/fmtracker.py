@@ -5,7 +5,9 @@ from . import fmplot
 from . import post_process
 from . import fmbeads
 from . import fmmesh
+from . import translation_corrector
 import pickle
+from tqdm import tqdm
 
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import (RBF, Matern, RationalQuadratic,
@@ -31,45 +33,22 @@ class FMTracker:
 
 		self.print_progress = True
 
-		# For get_tracking_params()
 		self.num_feat = 5
 		self.num_nearest = 15
-		self.buffer_cell = 0
+		self.buffer_cell = 30
 		self.track_type = 2 # type 1 will NOT perform translation correction, type 2 will
 
 	def save(self,filename):
+		# saves entire FMTracker object by pickling it
 		pickle.dump(self, open(filename,'wb'))
 
-	def run_tracking(self):
-		num_feat, num_nearest, buffer_cell, track_type  = self.get_tracking_params()
-		self.closest_no_conflict, self.idx_ignored, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, cell_final_new, self.mars_figure = \
-			tracking.track_main_call(track_type,self.beads_init.points, self.beads_final.points, self.cell_init, self.cell_final, num_feat, num_nearest, buffer_cell, self.print_progress)
-		self.cell_final_new = cell_final_new
-		self.beads_init_new = fmbeads.FMBeads(np.transpose(np.vstack((x_pos,y_pos,z_pos))))
-		self.beads_final_new = fmbeads.FMBeads(np.transpose(np.vstack((x_pos_new,y_pos_new,z_pos_new))))
-
 	def save_res(self,folder,label_uncorrected):
-		x_pos = self.beads_init_new.points[:,0]
-		y_pos = self.beads_init_new.points[:,1]
-		z_pos = self.beads_init_new.points[:,2]
-
-		x_pos_new = self.beads_final_new.points[:,0]
-		y_pos_new = self.beads_final_new.points[:,1]
-		z_pos_new = self.beads_final_new.points[:,2]
-
-		tracking.save_res(folder, x_pos, y_pos, z_pos, x_pos_new, y_pos_new, z_pos_new, self.closest_no_conflict, label_uncorrected)
+		# saves bead positions in initial state along with displacements as text files
+		tracking.save_res(folder, self.beads_init, self.beads_final, label_uncorrected)
 
 	def load_res(self,bead_folder,cell_init_name,cell_final_name,label_uncorrected):
-		x_pos, y_pos, z_pos, U, V, W = tracking.load_res(bead_folder,label_uncorrected)
-		x_pos_new = x_pos + U
-		y_pos_new = y_pos + V
-		z_pos_new = z_pos + W
-
-		self.beads_init_new = fmbeads.FMBeads()
-		self.beads_final_new = fmbeads.FMBeads()
-
-		self.beads_init_new.points = np.transpose(np.vstack((x_pos,y_pos,z_pos)))
-		self.beads_final_new.points = np.transpose(np.vstack((x_pos_new,y_pos_new,z_pos_new)))
+		# loads bead positions and cell meshes from native text file formats
+		self.beads_init_new, self.beads_final_new = tracking.load_res(bead_folder,label_uncorrected)
 
 		self.cell_init = fmmesh.FMMesh()
 		self.cell_init.import_native_files(cell_init_name)
@@ -77,13 +56,17 @@ class FMTracker:
 		self.cell_final.import_native_files(cell_final_name)
 
 	def save_mars_figure(self,filename):
-		self.mars_figure.savefig(filename)
+		# saves the translation correction plot
+		fig = self.mars_model.create_figure()
+		fig.savefig(filename)
 
 	def plot(self):
+		# creates a 3D plot of the tracking results
 		plotter = fmplot.FMPlot(self)
 		plotter.plot()
 
 	def create_gp_model(self):
+		# creates a Gaussian process model
 		X = self.beads_init_new.points[:,0]
 		Y = self.beads_init_new.points[:,1]
 		Z = self.beads_init_new.points[:,2]
@@ -97,19 +80,102 @@ class FMTracker:
 		self.gp_W, self.scaler = create_gp_model(X,Y,Z,W)
 
 	def save_gp_model(self,foldername):
+		# saves the Gaussian process models to the specified folder
 		pickle.dump(self.gp_U, open(os.path.join(foldername,'gp_U.sav'),'wb'))
 		pickle.dump(self.gp_V, open(os.path.join(foldername,'gp_V.sav'),'wb'))
 		pickle.dump(self.gp_W, open(os.path.join(foldername,'gp_W.sav'),'wb'))
 		pickle.dump(self.scaler,open(os.path.join(foldername,'scaler.sav'),'wb'))
 
 	def load_gp_model(self,foldername):
+		# loads the Gaussian process models from the specified folder
 		pickle.load(self.gp_U, open(os.path.join(foldername,'gp_U.sav'),'rb'))
 		pickle.load(self.gp_V, open(os.path.join(foldername,'gp_V.sav'),'rb'))
 		pickle.load(self.gp_W, open(os.path.join(foldername,'gp_W.sav'),'rb'))
 		pickle.load(self.scaler,open(os.path.join(foldername,'scaler.sav'),'rb'))
 
-	def get_tracking_params(self):
-		return self.num_feat, self.num_nearest, self.buffer_cell, self.track_type 
+	def run_tracking(self):
+		"""Main tracking function. If self.track_type is 2, run_tracking() runs the more robust tracking algorithm,
+		correcting for microscope translation. If self.track_type is 1, run_tracking() does not correct for microscope
+		translation.
+
+		"""
+			
+		if self.track_type == 1:
+			closest_no_conflict = self.two_way_track()
+		elif self.track_type == 2:
+			closest_no_conflict = self.track_correct_track()
+
+		self.beads_init_new, self.beads_final_new = tracking.get_corrected_beads(self.beads_init, self.beads_final, closest_no_conflict)
+
+	def track_correct_track(self):
+		"""Performs a round of two-way tracking, followed by translation correction, followed by a second round of two-way tracking
+
+		Returns
+		----------
+		closest_no_conflict : np.array
+			One dimensional NumPy array. Each element closest_no_conflict[i] contains the index of the bead in beads_final
+			correlating to bead i in beads_init. If no corresponding bead was found, closest_no_conflict[i] = 99999999
+
+		"""
+		# performs initial round of two-way tracking
+		closest_no_conflict = self.two_way_track()
+
+		# performs translation correction
+		self.beads_final = self.translation_correction(closest_no_conflict)
+
+		# performs second round of two-way tracking
+		closest_no_conflict = self.two_way_track()
+
+		return closest_no_conflict
+
+	def two_way_track(self):
+		"""Performs a round of two-way tracking. Maps beads in initial state to beads in final state, then maps beads
+		in final state to beads in initial state, then rectifies the two mappings to only include correspondences identified
+		during both rounds of matching.
+
+		Returns
+		----------
+		closest_no_conflict : np.array
+			One dimensional NumPy array. Each element closest_no_conflict[i] contains the index of the bead in beads_final
+			correlating to bead i in beads_init. If no corresponding bead was found, closest_no_conflict[i] = 99999999
+
+		"""
+
+		# forms a progress bar
+		if self.print_progress:
+			pbar = tqdm(total=11, desc='Tracking round', bar_format='{l_bar}{bar}|[{elapsed}<{remaining}, {rate_fmt}{postfix}]', ascii=True)
+		else:
+			pbar = None
+
+		# runs the tracking
+		closest_no_conflict, _ = tracking.two_way_track(self.num_feat, self.num_nearest, self.beads_init, self.beads_final, pbar=pbar) # CORRECT in tracking.py
+		return closest_no_conflict
+
+	def translation_correction(self, closest_no_conflict):
+		"""Corrects for microscope translation using the method outlined in the technical overview paper. Utilizes a multivariate
+		adaptive regression spline method from PyEarth to bring the average bead displacement of each z-slice to zero
+
+		Parameters
+		----------
+		closest_no_conflict : np.array
+			One dimensional NumPy array. Each element closest_no_conflict[i] contains the index of the bead in beads_final
+			correlating to bead i in beads_init. If no corresponding bead was found, closest_no_conflict[i] = 99999999
+
+		Returns
+		----------
+		beads_final_corrected : fmtrack.FMBeads
+			Final bead positions after microscope translation has been corrected for
+			
+		"""
+
+		self.mars_model = translation_corrector.TranslationCorrector()
+		self.mars_model.create_model(self.beads_init, self.beads_final, self.cell_init, self.cell_final, self.buffer_cell, closest_no_conflict)
+		beads_final_corrected = self.mars_model.correct_beads(self.beads_final)
+		if self.cell_final is not None:
+			self.cell_final_new = self.mars_model.correct_mesh(self.cell_final)
+
+		return beads_final_corrected
+
 
 def load_fmtrack(filename):
     return pickle.load(open(filename, 'rb'))

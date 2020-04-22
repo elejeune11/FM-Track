@@ -67,6 +67,7 @@ class FMPlot:
         self.add_bead_displacements(tracker.beads_final_new.points - tracker.beads_init_new.points)
         self.plot_displacement_vectors = True
         self.num_feat = tracker.num_feat
+        self.translation_correction = tracker.mars_model.create_figure()
 
     def save(self,filename):
         self.plotter = None
@@ -122,6 +123,9 @@ class FMPlot:
         self._before_any_2d_plot()
         post_process.plot_only_distance(filename,self.cell_init,self.dist_from_edge,self.dist_from_cell,self.mag_list,self.figtype_list)
 
+    def save_plot_only_translation_correction(self,filename):
+        self.translation_correction.savefig(filename)
+
     def save_vtk_files(self,folder, cell_init_name='cell_init', cell_final_name='cell_final', arrows_name='arrows'):
         point_cloud = pyvista.PolyData(self.bead_positions)
         point_cloud["dot(cell normal, displacement)"] = self.dir_score
@@ -147,6 +151,8 @@ class FMPlot:
         self.save_plot_only_slice(path)
         path = Path(folder).joinpath('Disp_wrt_dist')
         self.save_plot_only_distance(path)
+        path = Path(folder).joinpath('Translation_correction')
+        self.save_plot_only_translation_correction(path)
 
     def add_cell_init(self,cell):
         self.plot_cell_init = True

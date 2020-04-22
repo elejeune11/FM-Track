@@ -72,6 +72,20 @@ class InputInfo:
 			self.run_post_process()
 
 	def _construct_arrays(self):
+		"""Constructs the following:
+
+			self.pairs_array : dict
+				Indexed by the folder name of the tracking pair in the format 'Track_<beads1>_to_<beads2>'. Each element
+				contains an array of the form ['<beads1>', '<beads2>'], one row of self.tracking_pairs
+			self.tracker_dict : dict
+				Indexed in the same way as self.pairs_array. Each element is an FMTracker object
+			self.beads_dict : dict
+				Indexed by values of self.savefnames. Each element is an FMBeads object containing the bead data for that state
+			self.mesh_dict : dict
+				Indexed by values of self.savefnames. Each element is an FMMesh object containing the cell data for that state
+
+		"""
+
 		self._has_been_constructed = True
 		self.pairs_array = {}
 		self.tracker_dict = {}

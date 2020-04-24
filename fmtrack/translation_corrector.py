@@ -20,7 +20,7 @@ class TranslationCorrector:
             z_max = np.max([np.max(points_init[:,2]),np.max(points_final[:,2])]) + buffer_cell
 
         x_pos, y_pos, z_pos = beads_init.get_xyz()
-        x_pos_new, y_pos_new, z_pos_new = beads_init.get_xyz()
+        x_pos_new, y_pos_new, z_pos_new = beads_final.get_xyz()
         
         num_pts = len(x_pos)
         X = []; Y = []; Z = []; U = []; V = []; W = [] 

@@ -30,13 +30,16 @@ class FMBeads:
         Parameters
         ----------
         filenames_beads : str
-        bead_channel : str
+            String containing the filename format
+            Example : input_file='./CytoD/Beads/Gel 2 CytoD%s.tif'
+        bead_channel : 
+            The color to examine (0=red, 1=green, 2=blue) (our example data uses green for cells)
         X_DIM : float
-            Total length of microscope imagery along the x dimension
+            Total length of microscope imagery along the x dimension (149.95 for example data)
         Y_DIM : float
-            Total length of microscope imagery along the x dimension
+            Total length of microscope imagery along the x dimension (149.95 for example data)
         Z_DIM : float
-            Total length of microscope imagery along the x dimension
+            Total length of microscope imagery along the x dimension (140.0 for example data)
 
         """
 

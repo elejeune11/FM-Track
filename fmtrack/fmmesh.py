@@ -42,7 +42,27 @@ class FMMesh:
         else:
             raise Exception('FMMesh.faces must be defined before calculating normals')
 
-    def get_cell_surface(self, filenames_cell,cell_channel, X_DIM, Y_DIM, Z_DIM, cell_threshold):
+    def get_cell_surface(self, filenames_cell, cell_channel, X_DIM, Y_DIM, Z_DIM, cell_threshold):
+        """Creates object from image data
+
+        Parameters
+        ----------
+        filenames_cell : str
+            String containing the path and filename format
+            Example : './CytoD/Cell/Gel 2 CytoD%s.tif'
+        cell_channel : int
+            The color to examine (0=red, 1=green, 2=blue) (our example data uses red for cells)
+        X_DIM : float
+            Total length of microscope imagery along the x dimension (149.95 for example data)
+        Y_DIM : float
+            Total length of microscope imagery along the x dimension (149.95 for example data)
+        Z_DIM : float
+            Total length of microscope imagery along the x dimension (140.0 for example data)
+        cell_threshold : float
+            Minimum voxel color intensity for consideration as part of the cell (1.0 for example data)
+
+        """
+        
         mesh = pre_process.get_cell_surface(filenames_cell,cell_channel, X_DIM, Y_DIM, Z_DIM, cell_threshold)
         self.points = mesh.points
         self.faces = mesh.faces

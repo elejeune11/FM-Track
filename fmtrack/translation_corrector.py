@@ -1,6 +1,7 @@
 import numpy as np
 from pyearth import Earth
 import matplotlib.pyplot as plt
+import fmtrack
 
 class TranslationCorrector:
 
@@ -77,14 +78,18 @@ class TranslationCorrector:
         pred_W = self.model_W.predict(z_pos)
         
         # --> correct new bead positions 
+        x_pos_new = x_pos.copy()
+        y_pos_new = y_pos.copy()
+        z_pos_new = z_pos.copy()
         for kk in range(0,len(x_pos)):
-            x_pos[kk] = x_pos[kk] - pred_U[kk] 
-            y_pos[kk] = y_pos[kk] - pred_V[kk]
-            z_pos[kk] = z_pos[kk] - pred_W[kk]
+            x_pos_new[kk] = x_pos[kk] - pred_U[kk]
+            y_pos_new[kk] = y_pos[kk] - pred_V[kk]
+            z_pos_new[kk] = z_pos[kk] - pred_W[kk]
 
-        beads.load_from_positions(x_pos, y_pos, z_pos)
+        beads_new = fmtrack.FMBeads()
+        beads_new.load_from_positions(x_pos_new, y_pos_new, z_pos_new)
 
-        return beads
+        return beads_new
 
     def correct_mesh(self, mesh):
         points = mesh.points

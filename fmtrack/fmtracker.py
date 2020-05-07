@@ -151,7 +151,7 @@ class FMTracker:
 		closest_no_conflict, _ = tracking.two_way_track(self.num_feat, self.num_nearest, self.beads_init, self.beads_final, pbar=pbar) # CORRECT in tracking.py
 		return closest_no_conflict
 
-	def translation_correction(self, closest_no_conflict):
+	def translation_correction(self, closest_no_conflict, use_box=True):
 		"""Corrects for microscope translation using the method outlined in the technical overview paper. Utilizes a multivariate
 		adaptive regression spline method from PyEarth to bring the average bead displacement of each z-slice to zero
 
@@ -169,7 +169,7 @@ class FMTracker:
 		"""
 
 		self.mars_model = translation_corrector.TranslationCorrector()
-		self.mars_model.create_model(self.beads_init, self.beads_final, self.cell_init, self.cell_final, self.buffer_cell, closest_no_conflict)
+		self.mars_model.create_model(self.beads_init, self.beads_final, self.cell_init, self.cell_final, self.buffer_cell, closest_no_conflict, use_box=use_box)
 		beads_final_corrected = self.mars_model.correct_beads(self.beads_final)
 		if self.cell_final is not None:
 			self.cell_final_new = self.mars_model.correct_mesh(self.cell_final)

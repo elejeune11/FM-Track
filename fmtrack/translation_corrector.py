@@ -2,7 +2,9 @@ import numpy as np
 from pyearth import Earth
 import matplotlib.pyplot as plt
 import fmtrack
+from tqdm import tqdm
 from . import tracking
+import math
 
 class TranslationCorrector:
 
@@ -45,7 +47,34 @@ class TranslationCorrector:
     # identifies 'safe' beads to use for translation correction by using
     # only beads that are above a certain threshold from the cell boundary
     def distance_threshold(self):
-        pass
+        points = self.cell_init.points
+        p1,p2,p3 = (points[:,0],points[:,1],points[:,2])
+
+        b1,b2,b3 = (self.X,self.Y,self.Z)
+
+        # Find shortest distance  between each initial bead and all the cell mesh vertices
+        kk = 0
+        new_beads = np.zeros((len(b1), 3))
+        new_disps = np.zeros((len(b1), 3))
+        temp = np.zeros(len(points))
+        for bead in tqdm(range(0,len(b1)), desc='Computing Safe Beads', ascii=True):
+            jj = 0
+            for point in range(0,len(points)): 
+                temp[jj] = math.sqrt((b1[bead]-p1[point])**2 + (b2[bead]-p2[point])**2 + (b3[bead]-p3[point])**2)
+                jj = jj + 1
+            
+            min_dist = np.amin(temp)
+            if min_dist > 50:
+                new_beads[kk] = [b1[bead],b2[bead],b3[bead]]
+                new_disps[kk] = [self.U[bead],self.V[bead],self.W[bead]]
+                kk = kk + 1
+
+
+        # Trim off the end zeros that were never filled
+        new_beads = new_beads[:kk, :]
+        new_disps = new_disps[:kk, :]
+        self.X_safe, self.Y_safe, self.Z_safe = (new_beads[:,0],new_beads[:,1],new_beads[:,2])
+        self.U_safe, self.V_safe, self.W_safe = (new_disps[:,0],new_disps[:,1],new_disps[:,2])
 
     # used only when there is no cell, or you want to include all of the beads in translation correction
     def no_cell(self):
@@ -67,11 +96,11 @@ class TranslationCorrector:
         self.beads_init_new, self.beads_final_new = tracking.get_corrected_beads(beads_init, beads_final, closest_no_conflict)
 
         # get matched positions and displacements
-        self.X, self.Y, self.Z = self.beads_init_new.get_xyz()
-        U, V, W = self.beads_final_new.get_xyz()
-        self.U = U - self.X
-        self.V = V - self.Y
-        self.W = W - self.Z
+        x_init, y_init, z_init = self.beads_init_new.get_xyz()
+        self.X, self.Y, self.Z = self.beads_final_new.get_xyz()
+        self.U = self.X - x_init
+        self.V = self.Y - y_init
+        self.W = self.Z - z_init
 
         # calculate safe beads
         if cell_init is None:

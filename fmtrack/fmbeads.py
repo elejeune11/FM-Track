@@ -22,7 +22,7 @@ class FMBeads:
 
     # get x_pos, y_pos, and z_pos
     def get_xyz(self):
-        return self.points[:,0], self.points[:,1], self.points[:,2]
+        return self.points[:,0].copy(), self.points[:,1].copy(), self.points[:,2].copy()
 
     def get_bead_centers(self, filenames_beads,bead_channel, X_DIM, Y_DIM, Z_DIM):
         """Creates a FMBeads object from image data

@@ -37,7 +37,7 @@ Once running this command, you may delete the downloaded folder if you wish. The
 
 ## Usage
 
-Below is a short example script intended for use on the [data](examples/data) folder. It (1) uses FM-Track to construct the cellular boundaries from images, (2) uses FM-Track to locate the bead positions from images, and (3) runs the actual tracking algorithm.
+Below is a short example script intended for use on the [data](examples/data) folder. It uses FM-Track to (1) construct the cellular boundaries from images, (2) locate the bead positions from images, and (3) run the actual tracking algorithm.
 
 ```Python
 import fmtrack
@@ -47,9 +47,9 @@ X_DIM = 149.95; Y_DIM = 149.95; Z_DIM = 140
 
 # (1) compute cellular boundary from images
 cell_init = fmtrack.FMMesh()
-cell_init.get_cell_surface('./data/CytoD/Cell/Gel 2 CytoD%s.tif',0, X_DIM, Y_DIM, Z_DIM, 1.0)
+cell_init.get_cell_surface('./data/CytoD/Cell/Gel 2 CytoD%s.tif', 0, X_DIM, Y_DIM, Z_DIM, 1.0)
 cell_final = fmtrack.FMMesh()
-cell_final.get_cell_surface('./data/Normal/Cell/Gel 2 Normal%s.tif',0, X_DIM, Y_DIM, Z_DIM, 1.0)
+cell_final.get_cell_surface('./data/Normal/Cell/Gel 2 Normal%s.tif', 0, X_DIM, Y_DIM, Z_DIM, 1.0)
 
 # (2) find bead positions from images
 print('Importing bead data')

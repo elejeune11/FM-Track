@@ -14,7 +14,7 @@ To install FM-Track, it is recommended to use Pip within a conda environment. An
 
 Currently, FM-Track is only compatible with Python < 3.7. To create a compatible environment, use the following commands:
 
-```
+```Bash
 conda create -n fmtrack python=3.6 anaconda
 conda activate fmtrack
 conda install -c conda-forge latexcodec
@@ -23,13 +23,13 @@ conda install pip
 
 To install FM-Track, download the zip file for the repository, unzip the folder, and navigate into the folder inside of a bash shell (such as terminal) using the following command:
 
-```
+```Bash
 cd <path-to-folder>
 ```
 
 To complete the installation, run the following command:
 
-```
+```Bash
 sudo pip install .
 ```
 
@@ -39,7 +39,7 @@ Once running this command, you may delete the downloaded folder if you wish. The
 
 Below is a short example script intended for use on the [data](examples/data) folder. It (1) uses FM-Track to construct the cellular boundaries from images, (2) uses FM-Track to locate the bead positions from images, and (3) runs the actual tracking algorithm.
 
-```
+```Python
 import fmtrack
 
 # set microscope dimensions

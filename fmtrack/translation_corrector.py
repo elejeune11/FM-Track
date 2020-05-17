@@ -64,7 +64,7 @@ class TranslationCorrector:
                 jj = jj + 1
             
             min_dist = np.amin(temp)
-            if min_dist > 50:
+            if min_dist > self.buffer_cell:
                 new_beads[kk] = [b1[bead],b2[bead],b3[bead]]
                 new_disps[kk] = [self.U[bead],self.V[bead],self.W[bead]]
                 kk = kk + 1

@@ -12,7 +12,7 @@ For a lengthier description, please refer to the [technical overview](technicalo
 
 To install FM-Track, it is recommended to use Pip within a conda environment. Anaconda allows you to create [environments](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/environments.html) to make software dependencies and installations easier to manage. By installing FM-Track into a conda environment, Anaconda automatically configures the proper dependencies for you and installs them all into the correct location. Once installed, FM-Track can be run using [Python import statements](https://docs.python.org/3/reference/import.html). This allows you to import FM-Track functions from the Anaconda installation folder so they can be used in an external file.
 
-Currently, FM-Track is only compatible with Python <= 3.6. To create a compatible environment, use the following commands:
+Currently, FM-Track is only compatible with Python < 3.7. To create a compatible environment, use the following commands:
 
 ```
 conda create -n fmtrack python=3.6 anaconda
@@ -30,14 +30,40 @@ cd <path-to-folder>
 To complete the installation, run the following command:
 
 ```
-sudo python setup.py install
+sudo pip install .
 ```
 
-Once running this command, you may delete the downloaded folder if you wish, however we strongly recommend keeping the examples folder in an easily accessible location. The source code folder (located in FM-Track-master/fmtrack) has now been copied into the proper Anaconda environment location. In other words, changing the source code will only affect the execution of scripts implementing FM-Track if you change the code now located in the Anaconda environment folder.
+Once running this command, you may delete the downloaded folder if you wish. The [source code folder](fmtrack) has now been copied into the proper Anaconda environment location, so you no longer need to keep a local version.
 
 ## Usage
 
-The easiest way to understand the core functionality of FM-Track is to look at the [simple_example.py](examples/simple_example.py) script. To summarize the [technical overview](technicaloverview.pdf), the most basic version of FM-Track accepts a set of bead locations in an initial state and a set in a final state, then it determines which beads from each set can be confidently matched. To do this, FM-Track uses a number of objects to make it more easily usable.
+Below is a short example script intended for use on the [data](examples/data) folder. It (1) uses FM-Track to construct the cellular boundaries from images, (2) uses FM-Track to locate the bead positions from images, and (3) runs the actual tracking algorithm.
+
+```
+import fmtrack
+
+# set microscope dimensions
+X_DIM = 149.95; Y_DIM = 149.95; Z_DIM = 140
+
+# (1) compute cellular boundary from images
+cell_init = fmtrack.FMMesh()
+cell_init.get_cell_surface('./data/CytoD/Cell/Gel 2 CytoD%s.tif',0, X_DIM, Y_DIM, Z_DIM, 1.0)
+cell_final = fmtrack.FMMesh()
+cell_final.get_cell_surface('./data/Normal/Cell/Gel 2 Normal%s.tif',0, X_DIM, Y_DIM, Z_DIM, 1.0)
+
+# (2) find bead positions from images
+print('Importing bead data')
+beads_init = fmtrack.FMBeads()
+beads_init.get_bead_centers('./data/CytoD/Beads/Gel 2 CytoD%s.tif', 1, X_DIM, Y_DIM, Z_DIM)
+beads_final = fmtrack.FMBeads()
+beads_final.get_bead_centers('./data/Normal/Beads/Gel 2 Normal%s.tif', 1, X_DIM, Y_DIM, Z_DIM)
+
+# (3) run tracking algorithm
+tracker = fmtrack.FMTracker(cell_init=cell_init, cell_final=cell_final, beads_init=beads_init, beads_final=beads_final)
+tracker.run_tracking()
+```
+
+To summarize the [technical overview](technicaloverview.pdf), the most basic version of FM-Track accepts a set of bead locations in an initial state and a set in a final state, then it determines which beads from each set can be confidently matched. To do this, FM-Track uses a number of objects to make it more easily usable.
 
 * `FMBeads()`: stores a single data set of beads.
 * `FMMesh()`: stores the data for a single cell.
@@ -45,30 +71,7 @@ The easiest way to understand the core functionality of FM-Track is to look at t
 * `FMPlot()`: stores the parameters for particular types of plots you might want to create (2D and 3D)
 * `InputInfo()`: enables the user to run the tracking algorithm on multiple datasets in sequence. This class uses the native filesystem, which is specified in the [test.py](examples/test.py) script.
 
-## Testing
-
-The easiest way to get started with FM-Track is by running and modifying the [test.py](examples/test.py) script. Theis script runs FM-Track on a set of sample data so you can see how it works on test data before trying it on your own. To properly use this file, copy the [data](examples/data) folder to your Desktop (or somewhere easily accessible), then change the `root_directory` variable at the top of test.py to store the path of this data folder. Next, run test.py using an IDE or in terminal by calling the following commands:
-
-```
-conda activate fmtrack
-python <path-to-test.py>
-```
-
-When importing functions from FM-Track, test.py looks for the files installed into your anaconda environment folder. Because of this, you must activate the environment every time you want to call FM-Track functions. To do this, use the command `conda activate fmtrack`.
-
-FM-Track uses the InputInfo class to store all your filepaths. The test.py file explains this in greater detail. Additionally, InputInfo stores the values of other tunable parameters. The test.py file explains this as well. The parameters that can be modified are as follows:
-
-* Color channels of beads and cell
-* Dimensions of FOV
-* Cellular threshold for analyzing boundaries of cellular material
-* Number of feature vectors used
-* Number of nearest beads analyzed
-* Tracking type (translation correction or not)
-* Cell buffers (for both the regular and translation correcting steps)
-* Data plotting options
-* Terminal output options
-
-For a greater description of all of these, please refer to the [technical overview](technicaloverview.pdf).
+To understand FM-Track more thoroughly, please refer to the [examples](examples) folder.
 
 ## Built With
 

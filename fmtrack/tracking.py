@@ -204,7 +204,7 @@ def load_res(destination,label_uncorrected):
 
 	return beads_init_new, beads_final_new
 
-def get_corrected_beads(beads_init, beads_final, closest_no_conflict):
+def get_corrected_beads(beads_init, beads_final, closest_no_conflict, return_matches=False):
 	"""Creates a FMBeads object from image data
 
 	#################
@@ -244,6 +244,7 @@ def get_corrected_beads(beads_init, beads_final, closest_no_conflict):
 
 	X_init = []; Y_init = []; Z_init = []; X_final = []; Y_final = []; Z_final = [] 
 	num_pts = len(x_pos)
+	matches = np.empty((0,2), dtype=int)
 	for kk in range(0,num_pts):
 		idx = closest_no_conflict[kk]
 		if idx <= num_pts:
@@ -254,6 +255,8 @@ def get_corrected_beads(beads_init, beads_final, closest_no_conflict):
 			X_final.append(x_pos_new[idx])
 			Y_final.append(y_pos_new[idx])
 			Z_final.append(z_pos_new[idx])
+
+			matches = np.vstack((matches, np.array([[kk,idx]])))
 
 	X_init = np.asarray(X_init)
 	Y_init = np.asarray(Y_init)
@@ -267,7 +270,10 @@ def get_corrected_beads(beads_init, beads_final, closest_no_conflict):
 	beads_final_new = fmtrack.FMBeads()
 	beads_final_new.load_from_positions(X_final, Y_final, Z_final)
 
-	return beads_init_new, beads_final_new
+	if return_matches:
+		return beads_init_new, beads_final_new, matches
+	else:
+		return beads_init_new, beads_final_new
 
 def save_corrected_cell(destination,cell_mesh):
 	np.savetxt(os.path.join(destination,'cell_mesh_2_corrected.txt'),cell_mesh.points)

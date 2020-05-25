@@ -46,6 +46,7 @@ import fmtrack
 X_DIM = 149.95; Y_DIM = 149.95; Z_DIM = 140
 
 # (1) compute cellular boundary from images
+print('Importing cell data')
 cell_init = fmtrack.FMMesh()
 cell_init.get_cell_surface('./data/CytoD/Cell/Gel 2 CytoD%s.tif',0, X_DIM, Y_DIM, Z_DIM, 1.0)
 cell_final = fmtrack.FMMesh()
@@ -61,6 +62,7 @@ beads_final.get_bead_centers('./data/Normal/Beads/Gel 2 Normal%s.tif', 1, X_DIM,
 # (3) run tracking algorithm
 tracker = fmtrack.FMTracker(cell_init=cell_init, cell_final=cell_final, beads_init=beads_init, beads_final=beads_final)
 tracker.run_tracking()
+tracker.save_all('./data/Track_CytoD_to_Normal')
 ```
 
 To summarize the [technical overview](technicaloverview.pdf), the most basic version of FM-Track accepts a set of bead locations in an initial state and a set in a final state, then it determines which beads from each set can be confidently matched. To do this, FM-Track uses a number of objects to make it more easily usable.

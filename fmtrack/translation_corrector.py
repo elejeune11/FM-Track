@@ -120,6 +120,20 @@ class TranslationCorrector:
         self.model_W.fit(self.Z_safe,self.W_safe)
 
     def correct_beads(self, beads):
+        """Corrects beads using translation correction model
+
+        Parameters
+        ----------
+        beads : FMBeads
+            Input beads in 'final' state
+
+        Returns
+        ----------
+        beads_new : FMBeads
+            Corrected version of the input beads
+
+        """
+
         x_pos, y_pos, z_pos = beads.get_xyz()
 
         # --> re-define Z 
@@ -142,6 +156,20 @@ class TranslationCorrector:
         return beads_new
 
     def correct_mesh(self, mesh):
+        """Corrects mesh using translation correction model
+
+        Parameters
+        ----------
+        mesh : FMMesh
+            Input mesh in 'final' state
+
+        Returns
+        ----------
+        mesh_new : FMMesh
+            Corrected version of the input mesh
+
+        """
+
         points = mesh.points
 
         # --> correct new cell position 
@@ -158,6 +186,25 @@ class TranslationCorrector:
         mesh_new.points = points_new
         
         return mesh_new
+    
+    def remove_spurious(self, beads_init_new, beads_final_new):
+        """Removes spurious matches with displacements deviating greatly
+        from translation correction predictions. Only removes 'far-field'
+        beads, ones that are outside of the correction boundary (either a
+        bounding box or distance threshold)
+
+        Parameters
+        ----------
+        beads_init_new : FMBeads
+            Matched beads in 
+        beads_final_new : FMBeads
+
+        Returns
+        ----------
+        mesh_new : FMMesh
+            Corrected version of the input mesh
+
+        """
 
     def create_figure(self):
         # --> plot MARS models 

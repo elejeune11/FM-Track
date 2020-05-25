@@ -14,7 +14,7 @@ To install FM-Track, it is recommended to use Pip within a conda environment. An
 
 Currently, FM-Track is only compatible with Python < 3.7. To create a compatible environment, use the following commands:
 
-```
+```Bash
 conda create -n fmtrack python=3.6 anaconda
 conda activate fmtrack
 conda install -c conda-forge latexcodec
@@ -23,13 +23,13 @@ conda install pip
 
 To install FM-Track, download the zip file for the repository, unzip the folder, and navigate into the folder inside of a bash shell (such as terminal) using the following command:
 
-```
+```Bash
 cd <path-to-folder>
 ```
 
 To complete the installation, run the following command:
 
-```
+```Bash
 sudo pip install .
 ```
 
@@ -37,9 +37,9 @@ Once running this command, you may delete the downloaded folder if you wish. The
 
 ## Usage
 
-Below is a short example script intended for use on the [data](examples/data) folder. It (1) uses FM-Track to construct the cellular boundaries from images, (2) uses FM-Track to locate the bead positions from images, and (3) runs the actual tracking algorithm.
+Below is a short example script intended for use on the [data](examples/data) folder. It uses FM-Track to (1) construct the cellular boundaries from images, (2) locate the bead positions from images, and (3) run the actual tracking algorithm.
 
-```
+```Python
 import fmtrack
 
 # set microscope dimensions
@@ -48,9 +48,9 @@ X_DIM = 149.95; Y_DIM = 149.95; Z_DIM = 140
 # (1) compute cellular boundary from images
 print('Importing cell data')
 cell_init = fmtrack.FMMesh()
-cell_init.get_cell_surface('./data/CytoD/Cell/Gel 2 CytoD%s.tif',0, X_DIM, Y_DIM, Z_DIM, 1.0)
+cell_init.get_cell_surface('./data/CytoD/Cell/Gel 2 CytoD%s.tif', 0, X_DIM, Y_DIM, Z_DIM, 1.0)
 cell_final = fmtrack.FMMesh()
-cell_final.get_cell_surface('./data/Normal/Cell/Gel 2 Normal%s.tif',0, X_DIM, Y_DIM, Z_DIM, 1.0)
+cell_final.get_cell_surface('./data/Normal/Cell/Gel 2 Normal%s.tif', 0, X_DIM, Y_DIM, Z_DIM, 1.0)
 
 # (2) find bead positions from images
 print('Importing bead data')

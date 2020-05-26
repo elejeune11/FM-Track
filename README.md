@@ -41,23 +41,24 @@ Below is a short example script intended for use on the [data](examples/data) fo
 
 ```Python
 import fmtrack
+import numpy as np
 
-# set microscope dimensions
-X_DIM = 149.95; Y_DIM = 149.95; Z_DIM = 140
+# set microscope field-of-view dimensions
+dims = np.array([149.95,149.95,140])
 
 # (1) compute cellular boundary from images
 print('Importing cell data')
 cell_init = fmtrack.FMMesh()
-cell_init.get_cell_surface('./data/CytoD/Cell/Gel 2 CytoD%s.tif', 0, X_DIM, Y_DIM, Z_DIM, 1.0)
+cell_init.get_cell_surface('./data/CytoD/Cell/Gel 2 CytoD%s.tif', dims)
 cell_final = fmtrack.FMMesh()
-cell_final.get_cell_surface('./data/Normal/Cell/Gel 2 Normal%s.tif', 0, X_DIM, Y_DIM, Z_DIM, 1.0)
+cell_final.get_cell_surface('./data/Normal/Cell/Gel 2 Normal%s.tif', dims)
 
 # (2) find bead positions from images
 print('Importing bead data')
 beads_init = fmtrack.FMBeads()
-beads_init.get_bead_centers('./data/CytoD/Beads/Gel 2 CytoD%s.tif', 1, X_DIM, Y_DIM, Z_DIM)
+beads_init.get_bead_centers('./data/CytoD/Beads/Gel 2 CytoD%s.tif', dims)
 beads_final = fmtrack.FMBeads()
-beads_final.get_bead_centers('./data/Normal/Beads/Gel 2 Normal%s.tif', 1, X_DIM, Y_DIM, Z_DIM)
+beads_final.get_bead_centers('./data/Normal/Beads/Gel 2 Normal%s.tif', dims)
 
 # (3) run tracking algorithm
 tracker = fmtrack.FMTracker(cell_init=cell_init, cell_final=cell_final, beads_init=beads_init, beads_final=beads_final)

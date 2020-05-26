@@ -50,7 +50,7 @@ def tif_reader(input_file,color_idx):
 	
 	return all_array 
 
-def get_cell_surface(input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_threshold):
+def get_cell_surface(input_file, dims, color_idx=0, cell_threshold=1.0):
 	"""Creates an FMMesh object from image data
 
 	Parameters
@@ -58,14 +58,10 @@ def get_cell_surface(input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_threshold):
 	input_file : str
 		String containing the path and filename format
 		Example : './CytoD/Cell/Gel 2 CytoD%s.tif'
+	dims : np.array
+		Total length of microscope imagery along the x, y, and z dimensions
 	color_idx : int
 		The color to examine (0=red, 1=green, 2=blue)
-	X_DIM : float
-		Total length of microscope imagery along the x dimension
-	Y_DIM : float
-		Total length of microscope imagery along the x dimension
-	Z_DIM : float
-		Total length of microscope imagery along the x dimension
 	cell_threshold : float
 		Minimum voxel color intensity for consideration as part of the cell
 
@@ -75,6 +71,8 @@ def get_cell_surface(input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_threshold):
 		An FMMesh object specifying the cell surface created from the image files
 
 	"""
+
+	X_DIM = dims[0]; Y_DIM = dims[1]; Z_DIM = dims[2]
 
 	mesh = fmmesh.FMMesh()
 
@@ -134,7 +132,7 @@ def get_cell_surface(input_file,color_idx, X_DIM, Y_DIM, Z_DIM, cell_threshold):
 #	OUTPUTS:
 #		- x, y, z position of each bead based on the input images 
 ##########################################################################################
-def get_bead_centers(input_file,color_idx, X_DIM, Y_DIM, Z_DIM):
+def get_bead_centers(input_file, dims, color_idx=1):
 	"""Creates a FMBeads object from image data
 
 	Parameters
@@ -142,14 +140,10 @@ def get_bead_centers(input_file,color_idx, X_DIM, Y_DIM, Z_DIM):
 	input_file : str
 		String containing the filename format
 		Example : input_file='./CytoD/Beads/Gel 2 CytoD%s.tif'
+	dims : np.array
+		Total length of microscope imagery along the x, y, and z dimensions
 	color_idx : 
 		The color to examine (0=red, 1=green, 2=blue)
-	X_DIM : float
-		Total length of microscope imagery along the x dimension
-	Y_DIM : float
-		Total length of microscope imagery along the x dimension
-	Z_DIM : float
-		Total length of microscope imagery along the x dimension
 
 	Returns 
 	----------
@@ -157,6 +151,8 @@ def get_bead_centers(input_file,color_idx, X_DIM, Y_DIM, Z_DIM):
 		An FMBeads object with bead positions corresponding to those calculated from imagery data
 
     """
+
+	X_DIM = dims[0]; Y_DIM = dims[1]; Z_DIM = dims[2]
 
 	# import the image file and apply a gaussian filter 
 	all_array = tif_reader(input_file,color_idx)

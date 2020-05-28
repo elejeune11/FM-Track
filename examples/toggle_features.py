@@ -40,6 +40,7 @@ tracker.num_nearest = 15   # number of beads in final state to compare to a part
 tracker.buffer_cell = 60   # buffer around cell beyond which beads are considered "far field"
 tracker.use_box = False   # True = far field boundary is rectangular prism, False = far field boundary is determined by dist. to cell surface
 tracker.should_remove_spurious = True   # if true, removes spurious far-field beads after tracking. Only use if track_type=2
+tracker.spurious_mag = 1   # magnitude of displacement above which a far-field bead is deemed "spurious" and removed from matches
 tracker.run_tracking()
 
 # (4) save all of the output data

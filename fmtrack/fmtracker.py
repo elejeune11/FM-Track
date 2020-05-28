@@ -21,6 +21,8 @@ from sklearn import preprocessing
 class FMTracker:
 
 	def __init__(self,cell_init=None,cell_final=None,beads_init=None,beads_final=None):
+
+		self.track_type = 2 # type 1 will NOT perform translation correction, type 2 will
         
 		self.cell_init = cell_init
 		self.cell_final = cell_final
@@ -41,8 +43,10 @@ class FMTracker:
 		self.num_feat = 5
 		self.num_nearest = 15
 		self.buffer_cell = 60
-		self.track_type = 2 # type 1 will NOT perform translation correction, type 2 will
+
+		self.spurious_mag = 1
 		self.should_remove_spurious = False
+
 		self.save_native_mesh = False
 		self.run_gp = False
 
@@ -138,7 +142,7 @@ class FMTracker:
 
 		return beads_final_corrected
 
-	def remove_spurious(self, threshold=1, return_isspurious=False):
+	def remove_spurious(self, return_isspurious=False):
 		"""Removes spurious bead matches. "Spurious" beads fulfill these two requirements:
 		
 		(1) They are in the "far field," meaning they are further from the cell boundary
@@ -157,7 +161,7 @@ class FMTracker:
 		# compute spurious displacements in u, v, and w directions
 		is_spurious = np.zeros(is_farfield.shape, dtype=bool)
 		disp_mags = np.linalg.norm(disps_all, axis=1)
-		is_spurious = disp_mags > threshold
+		is_spurious = disp_mags > self.spurious_mag
 
 		# must be both spurious and farfield for consideration
 		is_spurious = np.logical_and(is_spurious, is_farfield)

@@ -2,6 +2,7 @@ import numpy as np
 import meshio
 import trimesh
 from . import pre_process
+import os
 
 class FMMesh:
 
@@ -67,11 +68,11 @@ class FMMesh:
         self.vol = mesh.vol
 
     def import_native_files(self,root):
-        self.import_points(root + '_cell_mesh.txt')
-        self.import_faces(root + '_cell_faces.txt')
-        self.import_normals(root + '_cell_normals.txt')
-        self.import_center(root + '_cell_center.txt')
-        self.import_vol(root + '_cell_volume.txt')
+        self.import_points(root + 'vertices.txt')
+        self.import_faces(root + 'faces.txt')
+        self.import_normals(root + 'normals.txt')
+        self.import_center(root + 'center.txt')
+        self.import_vol(root + 'volume.txt')
 
     def import_points(self,filename):
         self.points = np.loadtxt(filename)
@@ -106,11 +107,12 @@ class FMMesh:
         np.savetxt(filename, np.array([self.vol]))
 
     def save_native_files(self,root):
-        self.export_points(root + '_cell_mesh.txt')
-        self.export_faces(root + '_cell_faces.txt')
-        self.export_normals(root + '_cell_normals.txt')
-        self.export_center(root + '_cell_center.txt')
-        self.export_vol(root + '_cell_volume.txt')
+        os.makedirs(root, exist_ok=True)
+        self.export_points(root + 'vertices.txt')
+        self.export_faces(root + 'faces.txt')
+        self.export_normals(root + 'normals.txt')
+        self.export_center(root + 'center.txt')
+        self.export_vol(root + 'volume.txt')
 
 def calculate_normal(point1,point2,point3):
     vec1 = point2 - point1

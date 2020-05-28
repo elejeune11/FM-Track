@@ -37,7 +37,7 @@ Once running this command, you may delete the downloaded folder if you wish. The
 
 ## Usage
 
-Below is a short example script intended for use on the [data](examples/data) folder. It uses FM-Track to (1) construct the cellular boundaries from images, (2) locate the bead positions from images, (3) run the actual tracking algorithm, and (3) save the results.
+Below is a short example script intended for use on the [data](examples/data) folder. It uses FM-Track to (1) construct the cellular boundaries from images, (2) locate the bead positions from images, (3) run the actual tracking algorithm, and (4) save the results.
 
 ```Python
 import fmtrack

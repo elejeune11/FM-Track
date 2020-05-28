@@ -37,11 +37,14 @@ class FMTracker:
 
 		self.print_progress = True
 
-		self.use_box = True
+		self.use_box = False
 		self.num_feat = 5
 		self.num_nearest = 15
-		self.buffer_cell = 30
+		self.buffer_cell = 60
 		self.track_type = 2 # type 1 will NOT perform translation correction, type 2 will
+		self.should_remove_spurious = False
+		self.save_native_mesh = False
+		self.run_gp = False
 
 	def save(self,filename):
 		# saves entire FMTracker object by pickling it
@@ -60,6 +63,9 @@ class FMTracker:
 			closest_no_conflict = self.track_correct_track()
 
 		self.beads_init_new, self.beads_final_new, self.matches = tracking.get_corrected_beads(self.beads_init, self.beads_final, closest_no_conflict, return_matches=True)
+
+		if self.should_remove_spurious:
+			self.remove_spurious()
 
 	def track_correct_track(self):
 		"""Performs a round of two-way tracking, followed by translation correction, followed by a second round of two-way tracking
@@ -132,7 +138,7 @@ class FMTracker:
 
 		return beads_final_corrected
 
-	def remove_spurious(self, z_score_spurious=2, return_isspurious=False):
+	def remove_spurious(self, threshold=1, return_isspurious=False):
 		"""Removes spurious bead matches. "Spurious" beads fulfill these two requirements:
 		
 		(1) They are in the "far field," meaning they are further from the cell boundary
@@ -150,12 +156,8 @@ class FMTracker:
 
 		# compute spurious displacements in u, v, and w directions
 		is_spurious = np.zeros(is_farfield.shape, dtype=bool)
-		for i in range(3):
-			mean = np.mean(disps_farfield[:,i])
-			std = np.std(disps_farfield[:,i])
-			z_score_array = (disps_all[:,i] - mean) / std
-			spurious = np.logical_or(z_score_array < -z_score_spurious, z_score_array > z_score_spurious)
-			is_spurious = np.logical_or(is_spurious, spurious)
+		disp_mags = np.linalg.norm(disps_all, axis=1)
+		is_spurious = disp_mags > threshold
 
 		# must be both spurious and farfield for consideration
 		is_spurious = np.logical_and(is_spurious, is_farfield)
@@ -177,10 +179,20 @@ class FMTracker:
 		self.save(folderpath+'/tracker.sav')
 
 		# saves the cells as msh files
-		if self.cell_init is not None:
-			self.cell_init.save_msh_file(folderpath+'/cell_init.msh')
-		if self.cell_final is not None:
-			self.cell_final.save_msh_file(folderpath+'/cell_final.msh')
+		if self.save_native_mesh:
+			if self.cell_init is not None:
+				self.cell_init.save_native_files(folderpath+'/cell_init/')
+			if self.cell_final is not None:
+				self.cell_final.save_native_files(folderpath+'/cell_final/')
+			if self.cell_final_new is not None:
+				self.cell_final_new.save_native_files(folderpath+'/cell_final_corrected/')
+		else:
+			if self.cell_init is not None:
+				self.cell_init.save_msh_file(folderpath+'/cell_init.msh')
+			if self.cell_final is not None:
+				self.cell_final.save_msh_file(folderpath+'/cell_final.msh')
+			if self.cell_final_new is not None:
+				self.cell_final_new.save_msh_file(folderpath+'/cell_final_corrrected.msh')
 
 		# saves all of the bead positions, even those not in a match
 		path = folderpath+'/all_beads'

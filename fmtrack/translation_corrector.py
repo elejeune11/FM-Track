@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import fmtrack
 from tqdm import tqdm
 from . import tracking
+import fmtrack
 import math
 
 class TranslationCorrector:
@@ -182,8 +183,7 @@ class TranslationCorrector:
         points_new[:,1] = points[:,1] - pred_cell_1
         points_new[:,2] = points[:,2] - pred_cell_2
 
-        mesh_new = mesh
-        mesh_new.points = points_new
+        mesh_new = fmtrack.FMMesh(points=points_new, faces=mesh.faces)
         
         return mesh_new
     

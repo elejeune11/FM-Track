@@ -43,6 +43,14 @@ class FMMesh:
         else:
             raise Exception('FMMesh.faces must be defined before calculating normals')
 
+    def calculate_center(self):
+        mesh = trimesh.Trimesh(self.points, self.faces)
+        self.center = mesh.center_mass
+
+    def calculate_vol(self):
+        mesh = trimesh.Trimesh(self.points, self.faces)
+        self.vol = mesh.volume
+
     def get_cell_surface(self, filenames_cell, dims, cell_channel=0, cell_threshold=1.0):
         """Creates object from image data
 
@@ -108,11 +116,21 @@ class FMMesh:
 
     def save_native_files(self,root):
         os.makedirs(root, exist_ok=True)
+
+        if self.normals is None:
+            self.calculate_normals()
+        if self.center is None:
+            self.calculate_center()
+        if self.vol is None:
+            self.calculate_vol()
+
         self.export_points(root + 'vertices.txt')
         self.export_faces(root + 'faces.txt')
         self.export_normals(root + 'normals.txt')
         self.export_center(root + 'center.txt')
         self.export_vol(root + 'volume.txt')
+
+        
 
 def calculate_normal(point1,point2,point3):
     vec1 = point2 - point1

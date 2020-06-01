@@ -46,6 +46,10 @@ class FMTracker:
 
 		self.spurious_mag = 1
 		self.should_remove_spurious = False
+		self.beads_init_nonspurious = None
+		self.beads_final_nonspurious = None
+		self.beads_init_spurious = None
+		self.beads_final_spurious = None
 
 		self.save_native_mesh = False
 		self.run_gp = False
@@ -168,9 +172,17 @@ class FMTracker:
 		idx_spurious = np.argwhere(is_spurious).flatten()
 		idx_nonspurious = np.argwhere(np.logical_not(is_spurious)).flatten()
 
-		# return the non-spurious beads
-		self.beads_init_new.points = self.beads_init_new.points[idx_nonspurious,:]
-		self.beads_final_new.points = self.beads_final_new.points[idx_nonspurious,:]
+		# save the non-spurious beads
+		self.beads_init_nonspurious = fmtrack.FMBeads()
+		self.beads_final_nonspurious = fmtrack.FMBeads()
+		self.beads_init_nonspurious.points = self.beads_init_new.points[idx_nonspurious,:]
+		self.beads_final_nonspurious.points = self.beads_final_new.points[idx_nonspurious,:]
+
+		# save the spurious beads
+		self.beads_init_spurious = fmtrack.FMBeads()
+		self.beads_final_spurious = fmtrack.FMBeads()
+		self.beads_init_spurious.points = self.beads_init_new.points[idx_spurious,:]
+		self.beads_final_spurious.points = self.beads_final_new.points[idx_spurious,:]
 
 		if return_isspurious:
 			return is_spurious
@@ -214,6 +226,20 @@ class FMTracker:
 		np.savetxt(path+'/beads_init.txt', self.beads_init_new.points)
 		np.savetxt(path+'/beads_final.txt', self.beads_final_new.points)
 		np.savetxt(path+'/matches.txt', self.matches)
+
+		# saves nonspurious bead matches
+		if self.beads_init_nonspurious is not None:
+			path = folderpath+'/nonspurious_matches'
+			os.makedirs(path, exist_ok=True)
+			np.savetxt(path+'/beads_init.txt', self.beads_init_nonspurious.points)
+			np.savetxt(path+'/beads_final.txt', self.beads_final_nonspurious.points)
+
+		# saves spurious bead matches
+		if self.beads_init_spurious is not None:
+			path = folderpath+'/spurious_matches'
+			os.makedirs(path, exist_ok=True)
+			np.savetxt(path+'/beads_init.txt', self.beads_init_spurious.points)
+			np.savetxt(path+'/beads_final.txt', self.beads_final_spurious.points)
 
 		# saves graphs
 		plotter = fmtrack.FMPlot(self)

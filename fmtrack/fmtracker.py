@@ -26,6 +26,7 @@ class FMTracker:
         
 		self.cell_init = cell_init
 		self.cell_final = cell_final
+		self.cell_final_new = None
 
 		self.beads_init = beads_init
 		self.beads_final = beads_final

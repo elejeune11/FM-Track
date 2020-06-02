@@ -174,8 +174,8 @@ class TranslationCorrector:
         points = mesh.points
 
         # --> correct new cell position 
-        pred_cell_0 = self.model_U.predict(points[:,0])
-        pred_cell_1 = self.model_V.predict(points[:,1])
+        pred_cell_0 = self.model_U.predict(points[:,2])
+        pred_cell_1 = self.model_V.predict(points[:,2])
         pred_cell_2 = self.model_W.predict(points[:,2])
         
         points_new = np.zeros(points.shape)

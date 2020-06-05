@@ -63,8 +63,13 @@ class FMPlot:
     def _from_fmtracker(self,tracker):
         self.add_cell_init(tracker.cell_init)
         self.add_cell_final(tracker.cell_final)
-        self.add_bead_positions(tracker.beads_init_new.points)
-        self.add_bead_displacements(tracker.beads_final_new.points - tracker.beads_init_new.points)
+        if tracker.beads_init_nonspurious is None:
+            self.add_bead_positions(tracker.beads_init_new.points)
+            self.add_bead_displacements(tracker.beads_final_new.points - tracker.beads_init_new.points)
+        else:
+            self.add_bead_positions(tracker.beads_init_nonspurious.points)
+            self.add_bead_displacements(tracker.beads_final_nonspurious.points - tracker.beads_init_nonspurious.points)
+            
         self.plot_displacement_vectors = True
         self.num_feat = tracker.num_feat
         if tracker.mars_model is not None:

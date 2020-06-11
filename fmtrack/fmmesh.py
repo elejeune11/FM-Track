@@ -10,6 +10,8 @@ class FMMesh:
         self.points = points
         self.faces = faces
         self.normals = normals
+        self.center = center
+        self.vol = vol
 
     def import_msh_file(self,filename):
         mesh = meshio.read(filename)
@@ -24,6 +26,11 @@ class FMMesh:
         cells = {'triangle':self.faces}
         mesh = meshio.Mesh(self.points,cells)
         meshio.write(filename,mesh)
+
+    def calculate_all(self):
+        self.calculate_normals()
+        self.calculate_center()
+        self.calculate_vol()
 	
     def calculate_normals(self):
         if self.faces is not None:

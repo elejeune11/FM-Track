@@ -184,6 +184,7 @@ class TranslationCorrector:
         points_new[:,2] = points[:,2] - pred_cell_2
 
         mesh_new = fmtrack.FMMesh(points=points_new, faces=mesh.faces)
+        mesh_new.calculate_all()
         
         return mesh_new
     

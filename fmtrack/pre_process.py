@@ -123,6 +123,7 @@ def get_cell_surface(input_file, dims, color_idx=0, cell_threshold=1.0):
 	mesh.points = verts
 	mesh.normals = normals
 	mesh.faces = faces
+	mesh.calculate_all()
 
 	return mesh
 

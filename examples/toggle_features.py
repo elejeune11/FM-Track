@@ -45,5 +45,6 @@ tracker.run_tracking()
 
 # (4) save all of the output data
 tracker.run_gp = False   # if true, makes and plots a gp model 
+tracker.gp_corrected_cell = True   # if true, plots the cell with translation correction in gpr plots
 tracker.save_native_mesh = True   # true = saves cell boundaries as text files, false = saves gmsh files
-tracker.save_all('./data/Track_CytoD_to_Normal')
+tracker.save_all('./data/Track_CytoD_to_Normal', dims=dims)

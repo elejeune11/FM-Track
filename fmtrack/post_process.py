@@ -636,22 +636,12 @@ def plot_gp_model_one_row(ax_list,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,gp_model
 	axi.set_ylabel(r'y-position $\mu m$')	
 	axi.set_xlim((-1,X_DIM)) 
 	axi.set_ylim((-1,Z_DIM))
-	
 
-# --> plot GPR model 
-def plot_gp_model(file_prefix_1,file_prefix_2,X_DIM,Y_DIM,Z_DIM,figtype_list,use_corrected_cell, root_directory):
-	cell_mesh_1, cell_normal_1, cell_center_1, cell_vol_1, cell_mesh_2, cell_normal_2, cell_center_2, cell_vol_2 = import_cell_info(file_prefix_1,file_prefix_2,root_directory)
-	
-	center = 0.5*cell_center_1 + 0.5*cell_center_2
-	folder = root_directory + '/Track_' + file_prefix_1 + '_to_' + file_prefix_2
-	
-	if use_corrected_cell:
-		cell_mesh_2 = np.loadtxt(folder + '/cell_mesh_2_corrected.txt')
-		
-	gp_U = pickle.load(open(folder + '/gp_U.sav', 'rb'))
-	gp_V = pickle.load(open(folder + '/gp_V.sav', 'rb'))
-	gp_W = pickle.load(open(folder + '/gp_W.sav', 'rb'))
-	scaler = pickle.load(open(folder + '/scaler.sav','rb'))
+def save_gp_plot(gp_U, gp_V, gp_W, scaler, cell_init, cell_final, dims):
+
+	center = 0.5*cell_init.center + 0.5*cell_final.center
+
+	X_DIM = dims[0]; Y_DIM = dims[1]; Z_DIM = dims[2]
 	
 	fig = plt.figure()
 	plt.style.use(stylepath)
@@ -664,30 +654,27 @@ def plot_gp_model(file_prefix_1,file_prefix_2,X_DIM,Y_DIM,Z_DIM,figtype_list,use
 	ax_list1 = [ax1,ax2,ax3]
 	title = r'x-displacement $\mu m$'
 	is_mag = False
-	plot_gp_model_one_row(ax_list1,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,gp_U,scaler,cell_mesh_1,cell_mesh_2)
+	plot_gp_model_one_row(ax_list1,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,gp_U,scaler,cell_init.points,cell_final.points)
 	
 	ax4 = fig.add_subplot(4, 3, 4); ax5 = fig.add_subplot(4, 3, 5); ax6 = fig.add_subplot(4, 3, 6) 
 	ax_list2 = [ax4,ax5,ax6]
 	title = r'y-displacement $\mu m$'
 	is_mag = False
-	plot_gp_model_one_row(ax_list2,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,gp_V,scaler,cell_mesh_1,cell_mesh_2)
+	plot_gp_model_one_row(ax_list2,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,gp_V,scaler,cell_init.points,cell_final.points)
 	
 	ax7 = fig.add_subplot(4, 3, 7); ax8 = fig.add_subplot(4, 3, 8); ax9 = fig.add_subplot(4, 3, 9) 
 	ax_list3 = [ax7,ax8,ax9]
 	title = r'z-displacement $\mu m$'
 	is_mag = False
-	plot_gp_model_one_row(ax_list3,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,gp_W,scaler,cell_mesh_1,cell_mesh_2)
+	plot_gp_model_one_row(ax_list3,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,gp_W,scaler,cell_init.points,cell_final.points)
 	
 	ax10 = fig.add_subplot(4, 3, 10); ax11 = fig.add_subplot(4, 3, 11); ax12 = fig.add_subplot(4, 3, 12) 
 	ax_list4 = [ax10,ax11,ax12]
 	title = r'mag-displacement $\mu m$'
 	is_mag = True
-	plot_gp_model_one_row(ax_list4,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,[gp_U, gp_V, gp_W],scaler,cell_mesh_1,cell_mesh_2)
+	plot_gp_model_one_row(ax_list4,is_mag,X_DIM,Y_DIM,Z_DIM,title,center,[gp_U, gp_V, gp_W],scaler,cell_init.points,cell_final.points)
 	
-	plt.tight_layout()
-	for end in figtype_list:
-		fname = folder + '/Interpolate_plot' + end
-		plt.savefig(fname)
+	return fig
 
 def calculate_deformation_tensor(x,y,z,gp_U,gp_V,gp_W,scaler):
 

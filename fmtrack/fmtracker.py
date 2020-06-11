@@ -54,6 +54,7 @@ class FMTracker:
 
 		self.save_native_mesh = False
 		self.run_gp = False
+		self.gp_corrected_cell = True
 
 	def save(self,filename):
 		# saves entire FMTracker object by pickling it
@@ -75,6 +76,10 @@ class FMTracker:
 
 		if self.should_remove_spurious:
 			self.remove_spurious()
+
+		if self.run_gp:
+			print('Creating GPR model')
+			self.create_gp_model()
 
 	def track_correct_track(self):
 		"""Performs a round of two-way tracking, followed by translation correction, followed by a second round of two-way tracking
@@ -188,7 +193,7 @@ class FMTracker:
 		if return_isspurious:
 			return is_spurious
 
-	def save_all(self, folderpath):
+	def save_all(self, folderpath, dims=None):
 		# saves the meshes, bead positions, and relevant graphs
 		os.makedirs(folderpath, exist_ok=True)
 
@@ -242,9 +247,19 @@ class FMTracker:
 			np.savetxt(path+'/beads_init.txt', self.beads_init_spurious.points)
 			np.savetxt(path+'/beads_final.txt', self.beads_final_spurious.points)
 
-		# saves graphs
+		# saves graphs (except gp model)
 		plotter = fmtrack.FMPlot(self)
 		plotter.save_native_plots(folderpath)
+
+		# saves gp models and graph
+		if self.run_gp:
+			path = folderpath+'/gp_model'
+			os.makedirs(path, exist_ok=True)
+			self.save_gp_model(path)
+			if dims is not None:
+				self.save_gp_figure(path+'/plot.png', dims=dims)
+			else:
+				print('Must pass in optional variable dims to plot gp model')
 
 
 	def save_res(self,folder,label_uncorrected):
@@ -260,9 +275,18 @@ class FMTracker:
 		self.cell_final = fmmesh.FMMesh()
 		self.cell_final.import_native_files(cell_final_name)
 
-	def save_mars_figure(self,filename):
+	def save_mars_figure(self, filename):
 		# saves the translation correction plot
 		fig = self.mars_model.create_figure()
+		fig.savefig(filename)
+
+	def save_gp_figure(self, filename, dims):
+		# saves the translation correction plot
+		if self.gp_corrected_cell and self.cell_final_new is not None:
+			fig = fmtrack.save_gp_plot(self.gp_U, self.gp_V, self.gp_W, self.scaler, self.cell_init, self.cell_final_new, dims)
+		else:
+			fig = fmtrack.save_gp_plot(self.gp_U, self.gp_V, self.gp_W, self.scaler, self.cell_init, self.cell_final, dims)
+
 		fig.savefig(filename)
 
 	def plot(self):

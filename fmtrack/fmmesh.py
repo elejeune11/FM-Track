@@ -10,8 +10,14 @@ class FMMesh:
         self.points = points
         self.faces = faces
         self.normals = normals
+        if self.normals is None:
+            self.calculate_normals()
         self.center = center
+        if self.center is None:
+            self.calculate_center()
         self.vol = vol
+        if self.vol is None:
+            self.calculate_vol()
 
     def import_msh_file(self,filename):
         mesh = meshio.read(filename)

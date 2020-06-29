@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='fm-track',
-      version='2.0.0-dev',
+      version='2.0.1-dev',
       description='Feature-based fiducial marker tracking software for applications in cell mechanics',
       long_description=readme(),
       long_description_content_type='text/markdown',

@@ -12,15 +12,21 @@ class FMMesh:
         self.normals = normals
         self.center = center
         self.vol = vol
+        
+        if self.points is not None and self.faces is not None:
+            if self.normals is None:
+                self.calculate_normals()
+            if self.center is None:
+                self.calculate_center()
+            if self.vol is None:
+                self.calculate_vol()
 
     def import_msh_file(self,filename):
         mesh = meshio.read(filename)
         mesh = trimesh.Trimesh(mesh.points, mesh.get_cells_type('triangle'))
         self.points = np.asarray(mesh.vertices)
         self.faces = np.asarray(mesh.faces)
-        self.center = mesh.center_mass
-        self.vol = mesh.volume
-        self.calculate_normals()
+        self.calculate_all()
 
     def save_msh_file(self,filename):
         cells = {'triangle':self.faces}
@@ -54,7 +60,7 @@ class FMMesh:
 
     def calculate_vol(self):
         mesh = trimesh.Trimesh(self.points, self.faces)
-        self.vol = mesh.volume
+        self.vol = abs(mesh.volume)
 
     def get_cell_surface(self, filenames_cell, dims, cell_channel=0, cell_threshold=1.0):
         """Creates object from image data

@@ -214,7 +214,7 @@ class FMTracker:
 			if self.cell_final is not None:
 				self.cell_final.save_msh_file(folderpath+'/cell_final.msh')
 			if self.cell_final_new is not None:
-				self.cell_final_new.save_msh_file(folderpath+'/cell_final_corrrected.msh')
+				self.cell_final_new.save_msh_file(folderpath+'/cell_final_corrected.msh')
 
 		# saves all of the bead positions, even those not in a match
 		path = folderpath+'/all_beads'
